@@ -17,12 +17,10 @@ const SnakeGame: React.FC = () => {
     return () => clearInterval(interval);
   }, [snake, direction, isGameOver]);
 
-  const checkCollision = (head: number[]): boolean => {
-    // Check wall collision
+  const checkCollision = (head: [number, number]): boolean => {
     if (head[0] < 0 || head[0] >= 10 || head[1] < 0 || head[1] >= 10) {
       return true;
     }
-    // Check self collision
     return snake.some(([x, y]) => x === head[0] && y === head[1]);
   };
 
@@ -31,7 +29,7 @@ const SnakeGame: React.FC = () => {
     const head = newSnake[newSnake.length - 1] ?? [0, 0];
     const currentDirection = direction ?? [0, 1];
 
-    const newHead = [
+    const newHead: [number, number] = [
       (head[0] ?? 0) + (currentDirection[0] ?? 0),
       (head[1] ?? 0) + (currentDirection[1] ?? 0),
     ];
