@@ -8,6 +8,8 @@ import {
   pgTableCreator,
   timestamp,
   varchar,
+  serial,
+  text,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -35,9 +37,10 @@ export const posts = createTable(
   }),
 );
 
-export const scores = createTable("score", {
+export const scores = createTable("scores", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  userId: varchar("user_id", { length: 256 }).notNull(),
+  userId: text("userId").notNull(),
+  username: text("username").notNull(),
   score: integer("score").notNull(),
   game: varchar("game", { length: 256 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })

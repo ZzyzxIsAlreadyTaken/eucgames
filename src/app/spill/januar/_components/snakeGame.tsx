@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { saveScore } from "./saveScore";
 
 const SnakeGame: React.FC = () => {
   const { user } = useUser();
+  console.log("User object:", user);
   const [score, setScore] = useState(0);
   const [snake, setSnake] = useState([[0, 0]]);
   const [direction, setDirection] = useState<number[] | null>(null);
@@ -16,6 +18,12 @@ const SnakeGame: React.FC = () => {
     const interval = setInterval(moveSnake, 200);
     return () => clearInterval(interval);
   }, [snake, direction, isGameOver]);
+
+  useEffect(() => {
+    if (isGameOver) {
+      void handleSaveScore();
+    }
+  }, [isGameOver]);
 
   const checkCollision = (head: [number, number]): boolean => {
     if (head[0] < 0 || head[0] >= 10 || head[1] < 0 || head[1] >= 10) {
@@ -36,7 +44,7 @@ const SnakeGame: React.FC = () => {
 
     if (checkCollision(newHead)) {
       setIsGameOver(true);
-      void saveScore();
+      void handleSaveScore();
       return;
     }
 
@@ -87,16 +95,18 @@ const SnakeGame: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isGameOver]);
 
-  const saveScore = async () => {
+  const handleSaveScore = async () => {
     if (user && isGameOver) {
-      const userId = user.id;
-      await fetch("/api/saveScore", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, score }),
-      });
+      // Use the first available identifier in this order: username, firstName + lastName, or email
+      const username =
+        user.username ??
+        (user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`
+          : user.emailAddresses[0]?.emailAddress);
+
+      if (username) {
+        await saveScore(user.id, score, username);
+      }
     }
   };
 

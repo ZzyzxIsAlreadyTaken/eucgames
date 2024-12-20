@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SnakeGame from "./_components/snakeGame";
+import TopScore from "./_components/TopScore";
 
 export default function JanuaryGames() {
   return (
@@ -8,10 +9,19 @@ export default function JanuaryGames() {
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           Januar
         </h1>
+        <TopScore />
         <SnakeGame />
-        <Link href="/" className="text-lg text-white hover:underline">
-          Tilbake til forsiden →
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/" className="text-lg text-white hover:underline">
+            ← Tilbake til forsiden
+          </Link>
+          <Link
+            href="/spill/januar/highscores"
+            className="text-lg text-white hover:underline"
+          >
+            Se alle toppscore →
+          </Link>
+        </div>
       </div>
     </main>
   );
