@@ -9,11 +9,8 @@ export default function JanuaryGames() {
           Januar
         </h1>
         <SnakeGame />
-        <Link
-          href="/games/february"
-          className="text-lg text-blue-500 hover:underline"
-        >
-          Gå til Februar →
+        <Link href="/" className="text-lg text-white hover:underline">
+          Tilbake til forsiden →
         </Link>
       </div>
     </main>
