@@ -30,6 +30,13 @@ export default function HomePage() {
               deploy it.
             </div>
           </Link>
+          <Link
+            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
+            href="/games/january"
+          >
+            <h3 className="text-2xl font-bold">January Games →</h3>
+            <div className="text-lg">Check out the games for January.</div>
+          </Link>
         </div>
       </div>
     </main>
