@@ -10,6 +10,7 @@ export async function getHighScores() {
       .select({
         username: scores.username,
         score: scores.score,
+        createdAt: scores.createdAt,
       })
       .from(scores)
       .where(eq(scores.game, "snake"))

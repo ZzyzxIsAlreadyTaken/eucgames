@@ -19,7 +19,7 @@ export default function JanuaryGames() {
             href="/spill/januar/highscores"
             className="text-lg text-white hover:underline"
           >
-            Se alle toppscore →
+            Se topp 10 →
           </Link>
         </div>
       </div>

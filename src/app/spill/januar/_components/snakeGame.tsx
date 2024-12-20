@@ -112,16 +112,16 @@ const SnakeGame: React.FC = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h1>Snake Game</h1>
-      <p>Score: {score}</p>
+      <h1>EUC Snake</h1>
+      <p>Poeng: {score}</p>
       <div style={{ minHeight: "50px" }}>
         {isGameOver ? (
           <div>
-            <p>Game Over! Final Score: {score}</p>
-            <button onClick={resetGame}>Play Again</button>
+            <p>Game Over! Poeng: {score}</p>
+            <button onClick={resetGame}>Spill igjen</button>
           </div>
         ) : (
-          <p>Press any arrow key to start the game</p>
+          <p>Trykk på en piltast for å starte spillet</p>
         )}
       </div>
       <div

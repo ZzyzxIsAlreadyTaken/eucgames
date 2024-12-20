@@ -7,7 +7,7 @@ export default async function TopScore() {
 
   return (
     <div className="text-center">
-      <p className="text-sm text-gray-400">Top Score</p>
+      <p className="text-sm text-gray-400">Nåværende mester</p>
       <p className="font-bold">
         {topScore.username}: <span className="font-mono">{topScore.score}</span>
       </p>
