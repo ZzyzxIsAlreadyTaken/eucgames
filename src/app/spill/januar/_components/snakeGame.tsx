@@ -67,15 +67,19 @@ const SnakeGame: React.FC = () => {
 
       switch (e.key) {
         case "ArrowUp":
+          e.preventDefault(); // Prevent default scrolling
           setDirection([-1, 0]);
           break;
         case "ArrowDown":
+          e.preventDefault(); // Prevent default scrolling
           setDirection([1, 0]);
           break;
         case "ArrowLeft":
+          e.preventDefault(); // Prevent default scrolling
           setDirection([0, -1]);
           break;
         case "ArrowRight":
+          e.preventDefault(); // Prevent default scrolling
           setDirection([0, 1]);
           break;
       }
@@ -99,19 +103,27 @@ const SnakeGame: React.FC = () => {
   };
 
   return (
-    <div>
+    <div style={{ textAlign: "center" }}>
       <h1>Snake Game</h1>
       <p>Score: {score}</p>
-      {!direction && !isGameOver && (
-        <p>Press any arrow key to start the game</p>
-      )}
-      {isGameOver && (
-        <div>
-          <p>Game Over! Final Score: {score}</p>
-          <button onClick={resetGame}>Play Again</button>
-        </div>
-      )}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 20px)" }}>
+      <div style={{ minHeight: "50px" }}>
+        {isGameOver ? (
+          <div>
+            <p>Game Over! Final Score: {score}</p>
+            <button onClick={resetGame}>Play Again</button>
+          </div>
+        ) : (
+          <p>Press any arrow key to start the game</p>
+        )}
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(10, 20px)",
+          justifyContent: "center",
+          margin: "0 auto",
+        }}
+      >
         {Array.from({ length: 10 }).map((_, row) =>
           Array.from({ length: 10 }).map((_, col) => (
             <div
