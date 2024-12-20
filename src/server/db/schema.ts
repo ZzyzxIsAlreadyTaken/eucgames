@@ -27,10 +27,20 @@ export const posts = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
+      () => new Date(),
     ),
   },
   (example) => ({
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
+
+export const scores = createTable("score", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: varchar("user_id", { length: 256 }).notNull(),
+  score: integer("score").notNull(),
+  game: varchar("game", { length: 256 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});

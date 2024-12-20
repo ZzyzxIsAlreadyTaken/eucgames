@@ -3,18 +3,18 @@ import { FaLock } from "react-icons/fa";
 
 export default function HomePage() {
   const months = [
-    { name: "Januar", href: "/games/january", locked: false },
-    { name: "Februar", href: "/games/february", locked: true },
-    { name: "Mars", href: "/games/march", locked: true },
-    { name: "April", href: "/games/april", locked: true },
-    { name: "Mai", href: "/games/may", locked: true },
-    { name: "Juni", href: "/games/june", locked: true },
-    { name: "Juli", href: "/games/july", locked: true },
-    { name: "August", href: "/games/august", locked: true },
-    { name: "September", href: "/games/september", locked: true },
-    { name: "Oktober", href: "/games/october", locked: true },
-    { name: "November", href: "/games/november", locked: true },
-    { name: "Desember", href: "/games/december", locked: true },
+    { name: "Januar", href: "/spill/januar", locked: false },
+    { name: "Februar", href: "/spill/februar", locked: true },
+    { name: "Mars", href: "/spill/mars", locked: true },
+    { name: "April", href: "/spill/april", locked: true },
+    { name: "Mai", href: "/spill/mai", locked: true },
+    { name: "Juni", href: "/spill/juni", locked: true },
+    { name: "Juli", href: "/spill/juli", locked: true },
+    { name: "August", href: "/spill/august", locked: true },
+    { name: "September", href: "/spill/september", locked: true },
+    { name: "Oktober", href: "/spill/oktober", locked: true },
+    { name: "November", href: "/spill/november", locked: true },
+    { name: "Desember", href: "/spill/desember", locked: true },
   ];
 
   return (
@@ -34,7 +34,9 @@ export default function HomePage() {
                   : "bg-white/10 text-white hover:bg-white/20"
               }`}
             >
-              <h3 className="text-2xl font-semibold">{month.name}</h3>
+              <h3 className="text-center text-2xl font-semibold">
+                {month.name}
+              </h3>
               <div className="text-m flex items-center justify-center">
                 {month.locked ? (
                   <FaLock size={24} />
