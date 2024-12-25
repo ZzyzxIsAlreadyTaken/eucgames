@@ -9,17 +9,23 @@ export default function JanuaryGames() {
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           Januar
         </h1>
-        <TopScore />
-        <SnakeGame />
-        <div className="flex gap-4">
-          <Link href="/" className="text-lg text-white hover:underline">
-            ← Tilbake til forsiden
-          </Link>
+        <h2 className="text-2xl font-semibold">
+          EUC <span className="text-[#CC65FF]">Snake</span>
+        </h2>
+        <div className="flex flex-row items-center gap-20">
+          <TopScore className="rounded-lg border-2 border-purple-500 p-4" />
           <Link
             href="/spill/januar/highscores"
-            className="text-lg text-white hover:underline"
+            className="rounded-lg border-2 border-purple-500 p-4 text-xl text-white hover:underline"
           >
-            Se topp 10 →
+            Se topp 10
+          </Link>
+        </div>
+
+        <SnakeGame />
+        <div className="flex flex-col items-center gap-4">
+          <Link href="/" className="text-lg text-white hover:underline">
+            ← Tilbake til forsiden
           </Link>
         </div>
       </div>

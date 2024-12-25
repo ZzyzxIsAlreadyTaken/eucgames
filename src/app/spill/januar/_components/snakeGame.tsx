@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { saveScore } from "./saveScore";
+import { getTopScore } from "./getTopScore";
 
 const SnakeGame: React.FC = () => {
   const { user } = useUser();
@@ -12,6 +13,20 @@ const SnakeGame: React.FC = () => {
   const [direction, setDirection] = useState<number[] | null>(null);
   const [food, setFood] = useState([5, 5]);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [highScore, setHighScore] = useState(0);
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
+
+  const prevIsGameOver = useRef(false);
+
+  useEffect(() => {
+    const fetchTopScore = async () => {
+      const topScore = await getTopScore();
+      setHighScore(topScore?.score ?? 0);
+      console.log("High score:", topScore);
+    };
+
+    void fetchTopScore();
+  }, []);
 
   useEffect(() => {
     if (!direction || isGameOver) return; // Don't start until direction is set
@@ -20,16 +35,45 @@ const SnakeGame: React.FC = () => {
   }, [snake, direction, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver) {
+    if (isGameOver && !prevIsGameOver.current) {
+      console.log("Game Over! Current Score:", score, "High Score:", highScore);
+      if (score > highScore) {
+        console.log("New high score achieved!");
+        setIsNewHighScore(true);
+        setHighScore(score);
+      } else {
+        console.log("Not a new high score:", score);
+        setIsNewHighScore(false);
+      }
       void handleSaveScore();
     }
-  }, [isGameOver]);
+    prevIsGameOver.current = isGameOver; // Update the previous state
+  }, [isGameOver, score, highScore]);
 
-  const checkCollision = (head: [number, number]): boolean => {
-    if (head[0] < 0 || head[0] >= 10 || head[1] < 0 || head[1] >= 10) {
+  const checkGameOver = (newHead: [number, number]) => {
+    const [headX, headY] = newHead;
+    if (
+      headX < 0 ||
+      headX >= 10 ||
+      headY < 0 ||
+      headY >= 10 ||
+      snake.some(([x, y]) => x === headX && y === headY)
+    ) {
+      setIsGameOver(true);
       return true;
     }
-    return snake.some(([x, y]) => x === head[0] && y === head[1]);
+    return false;
+  };
+
+  const generateFoodPosition = () => {
+    let newFood: [number, number];
+    do {
+      newFood = [
+        Math.floor(Math.random() * 10),
+        Math.floor(Math.random() * 10),
+      ];
+    } while (snake.some(([x, y]) => x === newFood[0] && y === newFood[1]));
+    return newFood;
   };
 
   const moveSnake = () => {
@@ -42,15 +86,19 @@ const SnakeGame: React.FC = () => {
       (head[1] ?? 0) + (currentDirection[1] ?? 0),
     ];
 
-    if (checkCollision(newHead)) {
-      setIsGameOver(true);
-      void handleSaveScore();
+    if (checkGameOver(newHead)) {
+      console.log("Game Over! Current Score:", score, "High Score:", highScore);
+      if (score > highScore) {
+        console.log("New high score achieved!");
+        setHighScore(score);
+        setIsNewHighScore(true);
+      }
       return;
     }
 
     if (newHead[0] === food[0] && newHead[1] === food[1]) {
       setScore(score + 1);
-      setFood([Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)]);
+      setFood(generateFoodPosition());
     } else {
       newSnake.shift();
     }
@@ -65,6 +113,8 @@ const SnakeGame: React.FC = () => {
     setScore(0);
     setFood([5, 5]);
     setIsGameOver(false);
+    setIsNewHighScore(false);
+    prevIsGameOver.current = false; // Reset the previous state
   };
 
   useEffect(() => {
@@ -111,18 +161,32 @@ const SnakeGame: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>EUC Snake</h1>
-      <p>Poeng: {score}</p>
+    <div style={{ textAlign: "center", position: "relative" }}>
       <div style={{ minHeight: "50px" }}>
-        {isGameOver ? (
-          <div>
-            <p>Game Over! Poeng: {score}</p>
-            <button onClick={resetGame}>Spill igjen</button>
+        {isGameOver && (
+          <div
+            style={{
+              position: "absolute",
+              top: "60%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              color: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              zIndex: 10,
+              width: "80%",
+              maxWidth: "400px",
+            }}
+          >
+            <p>Game Over!!</p>
+            {isNewHighScore && <p>Gratulerer! Du er den nye lederen!</p>}
+            <br />
+            <button onClick={resetGame}>Klikk her for å spille igjen</button>
           </div>
-        ) : (
-          <p>Trykk på en piltast for å starte spillet</p>
         )}
+        {!isGameOver && <p>Trykk på en piltast for å starte spillet</p>}
+        <p>Poeng: {score}</p>
       </div>
       <div
         style={{
@@ -130,6 +194,8 @@ const SnakeGame: React.FC = () => {
           gridTemplateColumns: "repeat(10, 20px)",
           justifyContent: "center",
           margin: "0 auto",
+          boxShadow: isGameOver ? "0 0 10px rgba(0, 0, 0, 0.5)" : "none",
+          opacity: isGameOver ? 0.5 : 1,
         }}
       >
         {Array.from({ length: 10 }).map((_, row) =>

@@ -38,11 +38,7 @@ export default function HomePage() {
                 {month.name}
               </h3>
               <div className="text-m flex items-center justify-center">
-                {month.locked ? (
-                  <FaLock size={24} />
-                ) : (
-                  "Denne måneden er det snake som er spillet."
-                )}
+                {month.locked ? <FaLock size={24} /> : "EUC Snake mini-game."}
               </div>
             </Link>
           ))}
