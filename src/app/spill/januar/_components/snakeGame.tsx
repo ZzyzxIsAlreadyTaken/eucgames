@@ -6,7 +6,7 @@ import { saveScore } from "./saveScore";
 import { getTopScore } from "./getTopScore";
 
 const SnakeGame: React.FC = () => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   console.log("User object:", user);
   const [score, setScore] = useState(0);
   const [snake, setSnake] = useState([[0, 0]]);
@@ -119,7 +119,7 @@ const SnakeGame: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isGameOver) return;
+      if (isGameOver || !isSignedIn) return;
 
       switch (e.key) {
         case "ArrowUp":
@@ -143,7 +143,7 @@ const SnakeGame: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isGameOver]);
+  }, [isGameOver, isSignedIn]);
 
   const handleSaveScore = async () => {
     if (user && isGameOver) {
@@ -163,6 +163,7 @@ const SnakeGame: React.FC = () => {
   return (
     <div style={{ textAlign: "center", position: "relative" }}>
       <div style={{ minHeight: "50px" }}>
+        {!isSignedIn && <p>Logg inn å spille :)</p>}
         {isGameOver && (
           <div
             style={{
@@ -185,7 +186,9 @@ const SnakeGame: React.FC = () => {
             <button onClick={resetGame}>Klikk her for å spille igjen</button>
           </div>
         )}
-        {!isGameOver && <p>Trykk på en piltast for å starte spillet</p>}
+        {!isGameOver && isSignedIn && (
+          <p>Trykk på en piltast for å starte spillet</p>
+        )}
         <p>Poeng: {score}</p>
       </div>
       <div
