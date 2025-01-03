@@ -13,10 +13,18 @@ export default function AuthButtons() {
     <div className="flex space-x-4">
       <SignedIn>
         <UserButton />
-        <SignOutButton />
+        <SignOutButton>
+          <button className="rounded bg-[#2e026d] px-4 py-2 text-white hover:bg-[#15162c]">
+            Logg ut
+          </button>
+        </SignOutButton>
       </SignedIn>
       <SignedOut>
-        <SignInButton />
+        <SignInButton>
+          <button className="rounded bg-[#2e026d] px-4 py-2 text-white hover:bg-[#15162c]">
+            Logg inn
+          </button>
+        </SignInButton>
       </SignedOut>
     </div>
   );

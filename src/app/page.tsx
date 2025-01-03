@@ -23,6 +23,7 @@ export default function HomePage() {
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           EUC <span className="text-[hsl(280,100%,70%)]">Games</span>
         </h1>
+        <h2 className="text-2xl font-semibold text-white">2025</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 md:gap-8">
           {months.map((month) => (
             <Link
@@ -38,7 +39,7 @@ export default function HomePage() {
                 {month.name}
               </h3>
               <div className="text-m flex items-center justify-center">
-                {month.locked ? <FaLock size={24} /> : "EUC Snake mini-game."}
+                {month.locked ? <FaLock size={24} /> : "EUC Snake"}
               </div>
             </Link>
           ))}
