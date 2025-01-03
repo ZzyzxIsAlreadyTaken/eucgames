@@ -44,7 +44,7 @@ export default function HighScores() {
           );
         })}
         {scores.length === 0 && (
-          <p className="text-center text-gray-400">No scores yet</p>
+          <p className="text-center text-gray-400">Laster...</p>
         )}
       </div>
     </div>
