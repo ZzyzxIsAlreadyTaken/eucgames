@@ -1,7 +1,20 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { getHighScores } from "./getHighScores";
 
-export default async function HighScores() {
-  const scores = await getHighScores();
+export default function HighScores() {
+  const [scores, setScores] = useState<
+    Awaited<ReturnType<typeof getHighScores>>
+  >([]);
+
+  useEffect(() => {
+    const fetchScores = async () => {
+      const data = await getHighScores();
+      setScores(data);
+    };
+    void fetchScores();
+  }, []);
 
   return (
     <div className="mt-8 rounded-lg bg-white/10 p-4">
