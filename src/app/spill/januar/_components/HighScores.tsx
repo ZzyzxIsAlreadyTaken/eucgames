@@ -1,20 +1,9 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { getHighScores } from "./getHighScores";
+import { unstable_noStore as noStore } from "next/cache";
 
-export default function HighScores() {
-  const [scores, setScores] = useState<
-    Awaited<ReturnType<typeof getHighScores>>
-  >([]);
-
-  useEffect(() => {
-    const fetchScores = async () => {
-      const data = await getHighScores();
-      setScores(data);
-    };
-    void fetchScores();
-  }, []);
+export default async function HighScores() {
+  noStore();
+  const scores = await getHighScores();
 
   return (
     <div className="mt-8 rounded-lg bg-white/10 p-4">
@@ -44,7 +33,7 @@ export default function HighScores() {
           );
         })}
         {scores.length === 0 && (
-          <p className="text-center text-gray-400">Laster...</p>
+          <p className="text-center text-gray-400">Ingen poeng enda</p>
         )}
       </div>
     </div>
