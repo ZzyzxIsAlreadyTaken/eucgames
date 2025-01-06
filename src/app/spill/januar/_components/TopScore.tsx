@@ -1,10 +1,12 @@
 import { getTopScore } from "./getTopScore";
+import { unstable_noStore as noStore } from "next/cache";
 
 interface TopScoreProps {
   className?: string;
 }
 
 export default async function TopScore({ className = "" }: TopScoreProps) {
+  noStore();
   const topScore = await getTopScore();
 
   if (!topScore) return null;
