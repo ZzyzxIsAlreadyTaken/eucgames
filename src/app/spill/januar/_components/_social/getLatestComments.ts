@@ -4,11 +4,20 @@ import { db } from "~/server/db";
 import { snakeSocial } from "~/server/db/schema";
 import { desc } from "drizzle-orm";
 
-export async function getLatestComments() {
+interface Comment {
+  id: number;
+  userId: string;
+  username: string;
+  comment: string;
+  createdAt: Date;
+}
+
+export async function getLatestComments(): Promise<Comment[]> {
   try {
     const comments = await db
       .select({
         id: snakeSocial.id,
+        userId: snakeSocial.userId,
         username: snakeSocial.username,
         comment: snakeSocial.comment,
         createdAt: snakeSocial.createdAt,

@@ -8,21 +8,36 @@ import { addComment } from "./addComment";
 
 interface Comment {
   id: number;
+  userId: string;
   username: string;
   comment: string;
   createdAt: Date;
+  score: number | null;
 }
 
 const SnakeSocial: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [userHighScore, setUserHighScore] = useState<number | null>(null);
   const [newComment, setNewComment] = useState<string>("");
   const { user } = useUser();
 
   const fetchComments = async () => {
     try {
       const latestComments = await getLatestComments();
-      setComments(latestComments || []);
+      const commentsWithScores = await Promise.all(
+        latestComments.map(async (comment) => {
+          try {
+            const { score } = await getUserHighScore(comment.userId);
+            return { ...comment, score };
+          } catch (error) {
+            console.error(
+              `Error fetching score for user ${comment.userId}:`,
+              error,
+            );
+            return { ...comment, score: null };
+          }
+        }),
+      );
+      setComments(commentsWithScores);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
@@ -30,14 +45,7 @@ const SnakeSocial: React.FC = () => {
 
   useEffect(() => {
     void fetchComments();
-    const fetchUserHighScore = async () => {
-      if (user) {
-        const { score } = await getUserHighScore(user.id);
-        setUserHighScore(score);
-      }
-    };
-    void fetchUserHighScore();
-  }, [user]);
+  }, []);
 
   const handleAddComment = async () => {
     if (user && newComment.trim()) {
@@ -67,7 +75,7 @@ const SnakeSocial: React.FC = () => {
               {comment.username}
             </strong>{" "}
             <span className="text-xs text-gray-300">
-              Nåværende topp score: {userHighScore ?? "Har ikke score enda"}
+              Nåværende topp score: {comment.score ?? "Har ikke score enda"}
             </span>
             <p className="ml-1 italic text-gray-400">{comment.comment}</p>
             <small className="text-gray-500">
