@@ -5,11 +5,26 @@ export default async function HighScores() {
   noStore();
   const scores = await getHighScores();
 
+  // Calculate how many additional entries are needed
+  const additionalEntries = 10 - scores.length;
+  const defaultEntries = Array.from(
+    { length: additionalEntries },
+    (_, index) => ({
+      id: `default-${index}`, // Ensure unique keys for default entries
+      username: "Steinar Sønsteby",
+      score: 1,
+      createdAt: new Date(1962, 2, 16).toISOString(), // Use current date for default entries
+    }),
+  );
+
+  // Combine the original scores with the default entries
+  const allScores = [...scores, ...defaultEntries];
+
   return (
     <div className="mt-8 rounded-lg bg-white/10 p-4">
-      <h2 className="mb-4 text-xl font-bold">High Scores</h2>
+      <h2 className="mb-4 text-xl font-bold">Snake High Scores</h2>
       <div className="space-y-2">
-        {scores.map((score, index) => {
+        {allScores.map((score, index) => {
           const date = new Date(score.createdAt).toLocaleDateString("no-NO", {
             day: "numeric",
             month: "long",
@@ -18,7 +33,7 @@ export default async function HighScores() {
 
           return (
             <div
-              key={index}
+              key={score.id} // Use unique 'id' for both real and default entries
               className="flex items-center justify-between rounded bg-white/5 p-2"
             >
               <div className="flex gap-4">
@@ -32,9 +47,6 @@ export default async function HighScores() {
             </div>
           );
         })}
-        {scores.length === 0 && (
-          <p className="text-center text-gray-400">Ingen poeng enda</p>
-        )}
       </div>
     </div>
   );

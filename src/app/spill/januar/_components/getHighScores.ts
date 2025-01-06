@@ -8,6 +8,7 @@ export async function getHighScores() {
   try {
     const topScores = await db
       .select({
+        id: scores.id,
         username: scores.username,
         score: scores.score,
         createdAt: scores.createdAt,

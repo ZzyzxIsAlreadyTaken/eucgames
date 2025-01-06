@@ -47,3 +47,13 @@ export const scores = createTable("scores", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
+
+export const feedback = createTable("feedback", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: text("userId").notNull(),
+  title: text("title").notNull(),
+  comment: text("comments").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});

@@ -4,6 +4,7 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import AuthButtons from "../components/AuthButtons";
+import FeedbackBadge from "../components/FeedbackBadge";
 
 export const metadata: Metadata = {
   title: "EUC Games",
@@ -30,6 +31,7 @@ export default function RootLayout({
         <body>
           <TopNav />
           {children}
+          <FeedbackBadge />
         </body>
       </html>
     </ClerkProvider>
