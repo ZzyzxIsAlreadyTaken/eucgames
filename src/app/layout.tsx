@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import AuthButtons from "../components/AuthButtons";
 import FeedbackBadge from "../components/FeedbackBadge";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "EUC Games",
@@ -15,6 +16,12 @@ export const metadata: Metadata = {
 function TopNav() {
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-[#CC65FF] p-4">
+      <Link
+        href="/"
+        className="text-xl font-bold text-white hover:text-gray-100"
+      >
+        EUC Games
+      </Link>
       <div className="ml-auto">
         <AuthButtons />
       </div>
