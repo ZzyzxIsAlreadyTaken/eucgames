@@ -7,16 +7,19 @@ interface TopScoreProps {
 
 export default async function TopScore({ className = "" }: TopScoreProps) {
   noStore();
-  const topScore = await getTopScore();
+  const topScores = await getTopScore();
 
-  if (!topScore) return null;
+  if (!topScores || topScores.length === 0) return null;
 
   return (
     <div className={`text-center ${className}`}>
-      <p className="text-sm text-gray-400">Nåværende mester</p>
-      <p className="font-bold">
-        {topScore.username}: <span className="font-mono">{topScore.score}</span>
-      </p>
+      <p className="text-sm text-gray-400">Nåværende mester(e)</p>
+      {topScores.map((topScore, index) => (
+        <p key={index} className="font-bold">
+          {topScore.username}:{" "}
+          <span className="font-mono">{topScore.score}</span>
+        </p>
+      ))}
     </div>
   );
 }
