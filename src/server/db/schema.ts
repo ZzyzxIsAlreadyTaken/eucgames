@@ -52,7 +52,8 @@ export const feedback = createTable("feedback", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   userId: text("userId").notNull(),
   title: text("title").notNull(),
-  comment: text("comments").notNull(),
+  comment: text("comment").notNull(),
+  tags: text("tags").array(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

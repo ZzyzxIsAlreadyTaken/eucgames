@@ -9,15 +9,30 @@ interface FeedbackModalProps {
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const availableTags = [
+    "Bug",
+    "Feature Request",
+    "UI/UX",
+    "Spill - Snake",
+    "Annet",
+  ];
+
+  const handleTagChange = (tag: string) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag],
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await saveFeedback(userId, title, comment);
+    const result = await saveFeedback(userId, title, comment, selectedTags);
     if (result.success) {
-      alert("Feedback submitted successfully!");
       onClose();
     } else {
-      alert("Failed to submit feedback.");
     }
   };
 
@@ -103,6 +118,44 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
               }}
             />
           </div>
+          <div style={{ marginBottom: "15px" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              Tags:
+            </label>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              {availableTags.map((tag) => (
+                <label
+                  key={tag}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedTags.includes(tag)}
+                    onChange={() => handleTagChange(tag)}
+                    style={{
+                      marginRight: "5px",
+                    }}
+                  />
+                  {tag}
+                </label>
+              ))}
+            </div>
+          </div>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button
               type="button"
@@ -123,7 +176,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
                 (e.currentTarget.style.backgroundColor = "#f0f0f0")
               }
             >
-              Close
+              Lukk
             </button>
             <button
               type="submit"
@@ -143,7 +196,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
                 (e.currentTarget.style.backgroundColor = "#CC65FF")
               }
             >
-              Submit
+              Send inn
             </button>
           </div>
         </form>

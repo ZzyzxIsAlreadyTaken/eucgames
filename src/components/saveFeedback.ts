@@ -7,12 +7,14 @@ export async function saveFeedback(
   userId: string,
   title: string,
   comment: string,
+  tags: string[] = [],
 ) {
   try {
     await db.insert(feedback).values({
       userId,
       title,
       comment,
+      tags,
       createdAt: new Date(),
     });
     return { success: true };
