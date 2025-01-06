@@ -53,29 +53,36 @@ const SnakeSocial: React.FC = () => {
   };
 
   return (
-    <div className="comments-section">
-      <h3>Latest Comments</h3>
-      <ul>
+    <div className="comments-section mt-4 rounded-lg bg-white/10 p-4 shadow-md">
+      <h3 className="mb-4 text-xl font-bold">Latest Comments</h3>
+      <ul className="space-y-4">
         {comments.map((comment) => (
-          <li key={comment.id}>
-            <strong>
+          <li key={comment.id} className="rounded-md bg-white/5 p-3">
+            <strong className="block text-purple-500">
               {comment.username} - {userHighScore ?? "No score yet"}
             </strong>
-            : {comment.comment}
-            <br />
-            <small>{new Date(comment.createdAt).toLocaleString()}</small>
+            <p className="text-gray-300">{comment.comment}</p>
+            <small className="text-gray-500">
+              {new Date(comment.createdAt).toLocaleString()}
+            </small>
           </li>
         ))}
       </ul>
       {user && (
-        <div className="add-comment">
+        <div className="add-comment mt-4">
           <input
             type="text"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
+            className="w-full rounded-md border border-gray-600 bg-gray-800 p-2 text-white focus:border-purple-500 focus:outline-none"
           />
-          <button onClick={handleAddComment}>Submit</button>
+          <button
+            onClick={handleAddComment}
+            className="mt-2 w-full rounded-md bg-purple-500 py-2 text-white transition hover:bg-purple-600"
+          >
+            Submit
+          </button>
         </div>
       )}
     </div>

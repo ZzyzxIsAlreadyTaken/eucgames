@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useUser, SignedIn } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { saveScore } from "./saveScore";
 import { getTopScore } from "./getTopScore";
-import SnakeSocial from "./social/snakeSocial";
+
 const SnakeGame: React.FC = () => {
   const { user, isSignedIn } = useUser();
   console.log("User object:", user);
@@ -220,9 +220,6 @@ const SnakeGame: React.FC = () => {
           )),
         )}
       </div>
-      <SignedIn>
-        <SnakeSocial />
-      </SignedIn>
     </div>
   );
 };

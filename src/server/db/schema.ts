@@ -62,7 +62,7 @@ export const feedback = createTable("feedback", {
 export const snakeSocial = createTable("snake_social", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   userId: text("userId").notNull(),
-  username: text("userName").notNull(),
+  username: text("username").notNull(),
   comment: text("comment").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
