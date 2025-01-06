@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "~/server/db";
 import { scores } from "~/server/db/schema";
 import { desc, eq } from "drizzle-orm";

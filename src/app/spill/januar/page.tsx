@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SnakeGame from "./_components/snakeGame";
 import TopScore from "./_components/TopScore";
+import SnakeSocial from "./_components/_social/snakeSocial";
 
 export default function JanuaryGames() {
   return (
@@ -29,6 +30,7 @@ export default function JanuaryGames() {
           </Link>
         </div>
       </div>
+      <SnakeSocial />
     </main>
   );
 }

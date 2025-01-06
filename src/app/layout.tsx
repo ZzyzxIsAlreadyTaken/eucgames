@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 function TopNav() {
   return (
-    <nav className="fixed left-0 right-0 top-0 flex items-center justify-between border-b border-gray-200 bg-[#CC65FF] p-4">
+    <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-[#CC65FF] p-4">
       <div className="ml-auto">
         <AuthButtons />
       </div>
