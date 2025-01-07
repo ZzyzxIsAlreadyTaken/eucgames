@@ -31,7 +31,7 @@ export default function HomePage() {
             <Link
               key={month.name}
               href={month.locked ? "#" : month.href}
-              className={`h-50 w-50 flex flex-col gap-4 rounded-xl p-4 ${
+              className={`flex h-48 w-48 flex-col justify-between rounded-xl p-4 ${
                 month.locked
                   ? "cursor-not-allowed bg-gray-500/50 text-gray-400"
                   : "bg-white/10 text-white hover:bg-white/20"
