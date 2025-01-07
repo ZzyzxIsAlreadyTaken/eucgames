@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { FaLock } from "react-icons/fa";
+import { MonthStatusWrapper } from "~/components/MonthStatusWrapper";
 
 export default function HomePage() {
+  const currentMonth = new Date().getMonth();
   const months = [
-    { name: "Januar", href: "/spill/januar", locked: false },
+    { name: "Januar", href: "/spill/januar", locked: false, topScore: 100 },
     { name: "Februar", href: "/spill/februar", locked: true },
     { name: "Mars", href: "/spill/mars", locked: true },
     { name: "April", href: "/spill/april", locked: true },
@@ -25,11 +27,11 @@ export default function HomePage() {
         </h1>
         <h2 className="text-2xl font-semibold text-white">2025</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4 md:gap-8">
-          {months.map((month) => (
+          {months.map((month, index) => (
             <Link
               key={month.name}
               href={month.locked ? "#" : month.href}
-              className={`flex h-40 w-40 flex-col gap-4 rounded-xl p-4 ${
+              className={`h-50 w-50 flex flex-col gap-4 rounded-xl p-4 ${
                 month.locked
                   ? "cursor-not-allowed bg-gray-500/50 text-gray-400"
                   : "bg-white/10 text-white hover:bg-white/20"
@@ -41,6 +43,7 @@ export default function HomePage() {
               <div className="text-m flex items-center justify-center">
                 {month.locked ? <FaLock size={24} /> : "EUC Snake"}
               </div>
+              <MonthStatusWrapper isCurrentMonth={index === currentMonth} />
             </Link>
           ))}
         </div>

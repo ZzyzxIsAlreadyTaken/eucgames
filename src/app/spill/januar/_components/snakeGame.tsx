@@ -68,12 +68,27 @@ const SnakeGame: React.FC = () => {
 
   const generateFoodPosition = () => {
     let newFood: [number, number];
+    let attempts = 0;
+    const maxAttempts = 100; // Safety measure to prevent infinite loops
+
     do {
       newFood = [
         Math.floor(Math.random() * 10),
         Math.floor(Math.random() * 10),
       ];
-    } while (snake.some(([x, y]) => x === newFood[0] && y === newFood[1]));
+      attempts++;
+
+      // If we somehow can't find a valid position after many attempts,
+      // return a fallback position to prevent infinite loop
+      if (attempts > maxAttempts) {
+        console.warn("Could not find valid food position, using fallback");
+        return [0, 9]; // Top right corner as fallback
+      }
+    } while (
+      // Check if the new food position overlaps with any part of the snake
+      snake.some(([x, y]) => x === newFood[0] && y === newFood[1])
+    );
+
     return newFood;
   };
 
