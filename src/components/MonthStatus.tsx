@@ -18,8 +18,6 @@ export function MonthStatus({ isCurrentMonth, topScore }: MonthStatusProps) {
   useEffect(() => {
     if (!isCurrentMonth) return;
 
-    console.log("topScore:", topScore);
-
     const calculateTimeLeft = () => {
       const now = new Date();
       const endOfMonth = new Date(

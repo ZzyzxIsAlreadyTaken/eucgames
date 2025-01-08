@@ -5,7 +5,7 @@ import { MonthStatusWrapper } from "~/components/MonthStatusWrapper";
 export default function HomePage() {
   const currentMonth = new Date().getMonth();
   const months = [
-    { name: "Januar", href: "/spill/januar", locked: false, topScore: 100 },
+    { name: "Januar", href: "/spill/januar", locked: false, game: "EUC Snake" },
     { name: "Februar", href: "/spill/februar", locked: true },
     { name: "Mars", href: "/spill/mars", locked: true },
     { name: "April", href: "/spill/april", locked: true },
@@ -41,7 +41,7 @@ export default function HomePage() {
                 {month.name}
               </h3>
               <div className="text-m flex items-center justify-center">
-                {month.locked ? <FaLock size={24} /> : "EUC Snake"}
+                {month.locked ? <FaLock size={24} /> : month.game}
               </div>
               <MonthStatusWrapper isCurrentMonth={index === currentMonth} />
             </Link>

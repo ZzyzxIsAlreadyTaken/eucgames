@@ -11,7 +11,6 @@ export async function MonthStatusWrapper({
   const topScores = await getTopScore();
   const topScore = topScores?.[0]?.score ?? 0;
   const username = topScores?.[0]?.username ?? "";
-  console.log("topScore:", topScores);
   return (
     <MonthStatus
       isCurrentMonth={isCurrentMonth}

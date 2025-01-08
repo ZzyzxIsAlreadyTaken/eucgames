@@ -48,7 +48,6 @@ const FeedbackTable: React.FC<FeedbackTableProps> = ({ feedback }) => {
 
   return (
     <div className="feedback-table-container">
-      <h1>Feedback</h1>
       <table className="feedback-table">
         <thead>
           <tr>
