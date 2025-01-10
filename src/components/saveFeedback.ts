@@ -5,13 +5,15 @@ import { feedback } from "~/server/db/schema";
 
 export async function saveFeedback(
   userId: string,
+  username: string,
   title: string,
   comment: string,
-  tags: string[] = [],
+  tags: string[],
 ) {
   try {
     await db.insert(feedback).values({
       userId,
+      username,
       title,
       comment,
       tags,

@@ -9,6 +9,7 @@ interface FeedbackItem {
   comment: string;
   createdAt: string;
   tags: string[];
+  username: string;
 }
 
 interface FeedbackTableProps {
@@ -55,6 +56,7 @@ const FeedbackTable: React.FC<FeedbackTableProps> = ({ feedback }) => {
             <th onClick={() => requestSort("title")}>Tittel</th>
             <th onClick={() => requestSort("comment")}>Kommentar</th>
             <th onClick={() => requestSort("createdAt")}>Lagt til</th>
+            <th onClick={() => requestSort("username")}>Bruker</th>
             <th>Tags</th>
           </tr>
         </thead>
@@ -65,6 +67,7 @@ const FeedbackTable: React.FC<FeedbackTableProps> = ({ feedback }) => {
               <td>{item.title}</td>
               <td>{item.comment}</td>
               <td>{item.createdAt}</td>
+              <td>{item.username}</td>
               <td>
                 {item.tags && item.tags.length > 0 ? (
                   item.tags.map((tag, index) => (

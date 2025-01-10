@@ -4,9 +4,14 @@ import { saveFeedback } from "./saveFeedback";
 interface FeedbackModalProps {
   onClose: () => void;
   userId: string;
+  username: string;
 }
 
-const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
+const FeedbackModal: React.FC<FeedbackModalProps> = ({
+  onClose,
+  userId,
+  username,
+}) => {
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -30,7 +35,13 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose, userId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await saveFeedback(userId, title, comment, selectedTags);
+    const result = await saveFeedback(
+      userId,
+      username,
+      title,
+      comment,
+      selectedTags,
+    );
     if (result.success) {
       setSubmissionResult(
         `Tilbakemelding sendt! Tittel: ${title}, Kommentar: ${comment}, Tags: ${selectedTags.join(", ")}`,

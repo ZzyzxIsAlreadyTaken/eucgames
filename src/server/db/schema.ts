@@ -51,6 +51,7 @@ export const scores = createTable("scores", {
 export const feedback = createTable("feedback", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   userId: text("userId").notNull(),
+  username: text("username").notNull(),
   title: text("title").notNull(),
   comment: text("comment").notNull(),
   tags: text("tags").array(),

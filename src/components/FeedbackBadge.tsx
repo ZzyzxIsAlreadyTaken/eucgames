@@ -20,6 +20,11 @@ const FeedbackBadge: React.FC = () => {
   // Only show the badge if the user is logged in
   if (!user) return null;
 
+  const username =
+    user.username ??
+    (user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.emailAddresses[0]?.emailAddress);
   return (
     <div>
       <button
@@ -42,7 +47,11 @@ const FeedbackBadge: React.FC = () => {
         <FaCommentDots size={24} />
       </button>
       {isModalOpen && (
-        <FeedbackModal onClose={handleCloseModal} userId={user.id} />
+        <FeedbackModal
+          onClose={handleCloseModal}
+          userId={user.id}
+          username={username ?? "Ukjent bruker"}
+        />
       )}
     </div>
   );
