@@ -16,12 +16,14 @@ export const metadata: Metadata = {
 function TopNav() {
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-[#CC65FF] p-4">
-      <Link
-        href="/"
-        className="text-xl font-bold text-white hover:text-gray-100"
-      >
-        EUC Games
-      </Link>
+      <div>
+        <Link
+          href="/"
+          className="flex flex-row items-center justify-center gap-2 text-xl font-bold text-white hover:text-gray-100"
+        >
+          <img src="/EUC.png" alt="EUC Games" className="h-10 w-10" /> EUC Games
+        </Link>
+      </div>
       <div className="ml-auto">
         <AuthButtons />
       </div>

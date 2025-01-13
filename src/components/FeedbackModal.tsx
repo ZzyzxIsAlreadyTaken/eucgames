@@ -15,7 +15,9 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [submissionResult, setSubmissionResult] = useState<string | null>(null);
+  const [submissionResult, setSubmissionResult] =
+    useState<React.ReactNode | null>(null);
+  const [errors, setErrors] = useState({ title: "", comment: "" });
 
   const availableTags = [
     "Bug",
@@ -33,18 +35,37 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
     );
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      title: title.trim() === "" ? "Tittel er påkrevd" : "",
+      comment: comment.trim() === "" ? "Kommentar er påkrevd" : "",
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     const result = await saveFeedback(
       userId,
       username,
-      title,
-      comment,
+      title.trim(),
+      comment.trim(),
       selectedTags,
     );
     if (result.success) {
       setSubmissionResult(
-        `Tilbakemelding sendt! Tittel: ${title}, Kommentar: ${comment}, Tags: ${selectedTags.join(", ")}`,
+        <>
+          <strong>Tilbakemelding sendt!</strong>
+          <br />
+          <span>Tittel: {title}</span>
+          <br />
+          <span>Kommentar: {comment}</span>
+          <br />
+          <span>Tags: {selectedTags.join(", ")}</span>
+        </>,
       );
     } else {
       setSubmissionResult("Noe gikk galt, feedback ble ikke godt mottatt");
@@ -114,13 +135,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: "15px" }}>
               <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontWeight: "bold",
-                }}
+                className="text-md mb-1.5 block font-medium text-gray-900"
+                htmlFor="feedback-title"
               >
-                Tittel:
+                Tittel: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -130,20 +148,23 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   width: "100%",
                   padding: "10px",
                   borderRadius: "6px",
-                  border: "1px solid #ccc",
+                  border: `1px solid ${errors.title ? "#ff4444" : "#ccc"}`,
                   boxSizing: "border-box",
                 }}
+                required
               />
+              {errors.title && (
+                <span style={{ color: "#ff4444", fontSize: "0.8rem" }}>
+                  {errors.title}
+                </span>
+              )}
             </div>
             <div style={{ marginBottom: "15px" }}>
               <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontWeight: "bold",
-                }}
+                className="text-md mb-1.5 block font-medium text-gray-900"
+                htmlFor="feedback-comment"
               >
-                Kommentar:
+                Kommentar: <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={comment}
@@ -153,19 +174,22 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   height: "100px",
                   padding: "10px",
                   borderRadius: "6px",
-                  border: "1px solid #ccc",
+                  border: `1px solid ${errors.comment ? "#ff4444" : "#ccc"}`,
                   boxSizing: "border-box",
                   resize: "vertical",
                 }}
+                required
               />
+              {errors.comment && (
+                <span style={{ color: "#ff4444", fontSize: "0.8rem" }}>
+                  {errors.comment}
+                </span>
+              )}
             </div>
             <div style={{ marginBottom: "15px" }}>
               <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontWeight: "bold",
-                }}
+                className="text-md mb-1.5 block font-medium text-gray-900"
+                htmlFor="feedback-tags"
               >
                 Tags:
               </label>
