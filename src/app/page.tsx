@@ -43,7 +43,10 @@ export default function HomePage() {
               <div className="text-m flex items-center justify-center">
                 {month.locked ? <FaLock size={24} /> : month.game}
               </div>
-              <MonthStatusWrapper isCurrentMonth={index === currentMonth} />
+              <MonthStatusWrapper
+                isCurrentMonth={index === currentMonth}
+                monthIndex={index}
+              />
             </Link>
           ))}
         </div>

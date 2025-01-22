@@ -48,6 +48,19 @@ export const scores = createTable("scores", {
     .notNull(),
 });
 
+export const scoresMemory = createTable("scores_memory", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: text("userId").notNull(),
+  username: text("username").notNull(),
+  tries: integer("tries").notNull(),
+  time: integer("time").notNull(),
+  difficulty: varchar("difficulty", { length: 10 }).notNull(),
+  gameMode: varchar("gameMode", { length: 20 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
 export const feedback = createTable("feedback", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
   userId: text("userId").notNull(),

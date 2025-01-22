@@ -4,9 +4,9 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import Username from "./Username";
 import { motion, AnimatePresence } from "framer-motion";
-
-type GameMode = "letters" | "AzureNetworking" | "Intune";
-type Difficulty = "easy" | "normal" | "hard" | "insane";
+import { saveScore } from "./saveScore";
+export type GameMode = "letters" | "AzureNetworking" | "Intune";
+export type Difficulty = "easy" | "normal" | "hard" | "insane";
 type ImageResponse = {
   images: string[];
   count: number;
@@ -94,14 +94,26 @@ const formatTime = (seconds: number): string => {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
+// Add new type for score
+type Score = {
+  gameMode: GameMode;
+  difficulty: Difficulty;
+  attempts: number;
+  time: number;
+  userId: string;
+};
+
+// Update GameCompleteModal to show saving status
 const GameCompleteModal = ({
   attempts,
   time,
   onRestart,
+  isSaving,
 }: {
   attempts: number;
   time: number;
   onRestart: () => void;
+  isSaving: boolean;
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -116,12 +128,16 @@ const GameCompleteModal = ({
         <p className="mb-6 text-lg text-gray-700">
           Du fullførte spillet med {attempts} forsøk på {formatTime(time)}!
         </p>
-        <button
-          onClick={onRestart}
-          className="rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700"
-        >
-          Start på nytt
-        </button>
+        {isSaving ? (
+          <p className="mb-4 text-gray-600">Lagrer resultat...</p>
+        ) : (
+          <button
+            onClick={onRestart}
+            className="rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700"
+          >
+            Start på nytt
+          </button>
+        )}
       </motion.div>
     </div>
   );
@@ -150,6 +166,13 @@ export default function ToLike() {
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
     null,
   );
+  const [isSaving, setIsSaving] = useState(false);
+
+  const username =
+    user?.username ??
+    (user?.firstName && user?.lastName
+      ? `${user?.firstName} ${user?.lastName}`
+      : user?.emailAddresses[0]?.emailAddress);
 
   useEffect(() => {
     const loadCards = async () => {
@@ -169,20 +192,19 @@ export default function ToLike() {
       const [firstIndex, secondIndex] = flippedIndices;
 
       if (firstIndex !== undefined && secondIndex !== undefined) {
-        // Increment attempts by 1 when two cards are flipped
         setAttempts((prevAttempts) => prevAttempts + 1);
 
         if (cards[firstIndex] === cards[secondIndex]) {
-          // Increment matched pairs by 1 when a match is found
           setMatchedPairs((prevMatchedPairs) => {
             const newMatchedPairs = prevMatchedPairs + 1;
             if (newMatchedPairs === getGamePairs(difficulty)) {
-              setTimeout(() => setGameComplete(true), 300);
+              setTimeout(() => {
+                setGameComplete(true);
+              }, 300);
             }
             return newMatchedPairs;
           });
         } else {
-          // Flip back the cards if they don't match
           setTimeout(() => {
             setFlipped((prevFlipped) => {
               const newFlipped = [...prevFlipped];
@@ -192,12 +214,27 @@ export default function ToLike() {
             });
           }, 1000);
         }
-
-        // Clear flipped indices after processing
         setFlippedIndices([]);
       }
     }
   }, [flippedIndices, cards, difficulty]);
+
+  // New separate useEffect for score saving
+  useEffect(() => {
+    if (gameComplete && !isSaving) {
+      setIsSaving(true);
+      void saveScore(
+        user?.id ?? "",
+        username ?? "",
+        attempts,
+        time,
+        difficulty,
+        gameMode,
+      ).then(() => {
+        setIsSaving(false);
+      });
+    }
+  }, [gameComplete]);
 
   useEffect(() => {
     if (timerActive && !gameComplete) {
@@ -292,6 +329,7 @@ export default function ToLike() {
               attempts={attempts}
               time={time}
               onRestart={handleRestart}
+              isSaving={isSaving}
             />
           </AnimatePresence>
         )}

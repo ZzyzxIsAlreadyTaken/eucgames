@@ -10,10 +10,17 @@ interface TopScore {
 interface MonthStatusProps {
   isCurrentMonth: boolean;
   topScore: TopScore[] | null;
+  monthIndex: number;
 }
 
-export function MonthStatus({ isCurrentMonth, topScore }: MonthStatusProps) {
+export function MonthStatus({
+  isCurrentMonth,
+  topScore,
+  monthIndex,
+}: MonthStatusProps) {
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const currentMonth = new Date().getMonth();
+  const showLockMessage = monthIndex === currentMonth - 1;
 
   useEffect(() => {
     if (!isCurrentMonth) return;
@@ -46,13 +53,16 @@ export function MonthStatus({ isCurrentMonth, topScore }: MonthStatusProps) {
 
   return (
     <div className="mt-2 text-center">
-      {isCurrentMonth && topScore?.[0] && (
+      {monthIndex <= currentMonth && topScore?.[0] && (
         <p className="text-white-400 text-sm">
           Top Score: {topScore[0].username} - {topScore[0].score}
         </p>
       )}
       {isCurrentMonth && (
         <p className="text-sm text-red-600">Låses om: {timeLeft}</p>
+      )}
+      {showLockMessage && (
+        <p className="text-sm text-red-600">Spillet er nå låst</p>
       )}
     </div>
   );

@@ -4,6 +4,9 @@ import TopScore from "./_components/TopScore";
 import SnakeSocial from "./_components/_social/snakeSocial";
 
 export default function JanuaryGames() {
+  const now = new Date();
+  const isJanuary = now.getMonth() === 0; // 0 is January in JavaScript
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
@@ -23,7 +26,17 @@ export default function JanuaryGames() {
           </Link>
         </div>
 
-        <SnakeGame />
+        {isJanuary ? (
+          <SnakeGame />
+        ) : (
+          <div className="rounded-lg border-2 border-purple-500 p-8 text-center">
+            <h3 className="text-xl font-semibold">Spillet er låst</h3>
+            <p className="mt-2 text-gray-300">
+              Dette spillet er kun tilgjengelig i januar
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col items-center gap-4">
           <Link href="/" className="text-lg text-white hover:underline">
             ← Tilbake til forsiden
