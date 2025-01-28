@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import type { Difficulty } from "../_components/ToLike";
 import { getHighScores } from "../_components/getHighScores";
 import { addMockData } from "../_components/mockData";
+import { useSearchParams } from "next/navigation";
 
 interface Score {
   id: number;
@@ -16,7 +17,10 @@ interface Score {
 }
 
 export default function HighScoresPage() {
-  const [difficulty, setDifficulty] = useState<Difficulty>("normal");
+  const searchParams = useSearchParams();
+  const initialDifficulty =
+    (searchParams.get("difficulty") as Difficulty) ?? "normal";
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   const [highscores, setHighscores] = useState<Score[]>([]);
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export default function HighScoresPage() {
         </button>
 
         <div className="mt-8 rounded-lg bg-white/10 p-4">
-          <h2 className="mb-4 text-xl font-bold">Memory Game High Scores</h2>
+          <h2 className="mb-4 text-xl font-bold">EUC Memory High Scores</h2>
 
           <select
             className="mb-4 rounded bg-white/20 p-2 text-white"
@@ -86,8 +90,8 @@ export default function HighScoresPage() {
                     </div>
                   </div>
                   <div className="ml-5 flex gap-4 font-mono">
-                    <span>Tries: {score.tries}</span>
-                    <span>Time: {score.time}s</span>
+                    <span>Forsøk: {score.tries}</span>
+                    <span>Tid: {score.time}s</span>
                   </div>
                 </div>
               );
@@ -96,7 +100,7 @@ export default function HighScoresPage() {
         </div>
 
         <Link
-          href="/spill/februar"
+          href={`/spill/februar?difficulty=${difficulty}`}
           className="text-lg text-white hover:underline"
         >
           ← Tilbake til spillet

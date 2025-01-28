@@ -1,24 +1,16 @@
-import Link from "next/link";
+import FebruaryGamesContent from "./_components/FebruaryGamesContent";
+import { checkRole } from "~/utils/roles";
 
-import ToLike from "./_components/ToLike";
+export default async function FebruaryGames() {
+  const currentDate = new Date();
+  const isFebruary2025 =
+    currentDate.getMonth() === 1 && currentDate.getFullYear() === 2025;
 
-export default function FebruaryGames() {
+  const isAdmin = await checkRole("admin");
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="mt-10 text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Februar
-        </h1>
-        <h2 className="text-2xl font-semibold">
-          EUC <span className="text-[#CC65FF]">xxx</span>
-        </h2>
-        <ToLike />
-        <div className="flex flex-col items-center gap-4">
-          <Link href="/" className="text-lg text-white hover:underline">
-            ← Tilbake til forsiden
-          </Link>
-        </div>
-      </div>
+      <FebruaryGamesContent isFebruary2025={isFebruary2025} isAdmin={isAdmin} />
     </main>
   );
 }

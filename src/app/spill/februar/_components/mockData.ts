@@ -7,16 +7,13 @@ import type { Difficulty } from "./ToLike";
 const difficulties: Difficulty[] = ["easy", "normal", "hard", "insane"];
 const usernames = [
   "Steinar Sønsteby",
-  "Ola Nordmann",
-  "Kari Nordmann",
-  "Per Hansen",
-  "Anne Persen",
-  "Erik Eriksen",
-  "Lisa Larsen",
-  "Nils Nilsen",
-  "Maria Olsen",
-  "Jon Johnson",
-  "Donald Duck",
+  "Robert Giori",
+  "Carl-Johan Hultenheim",
+  "Ole Petter Saxrud",
+  "Linus Wallin",
+  "Kathrine Forsberg",
+  "Juha Sihvonen",
+  "Arunas Bartusevicius",
 ];
 
 export async function addMockData() {
@@ -35,12 +32,12 @@ export async function addMockData() {
 
         const baseTries =
           difficulty === "easy"
-            ? 10
+            ? 20
             : difficulty === "normal"
-              ? 20
+              ? 30
               : difficulty === "hard"
-                ? 30
-                : 40;
+                ? 40
+                : 60;
 
         const mockData = {
           userId: `mock-user-${i}`,

@@ -143,7 +143,15 @@ const GameCompleteModal = ({
   );
 };
 
-export default function ToLike() {
+interface ToLikeProps {
+  difficulty: Difficulty;
+  onDifficultyChange: (difficulty: Difficulty) => void;
+}
+
+export default function ToLike({
+  difficulty,
+  onDifficultyChange,
+}: ToLikeProps) {
   // TODO: Remove hardcoded user id
   const { user } = useUser();
   const allowedUserId = "user_2qTuThIX06GoEa47zOVx8InACD9";
@@ -160,7 +168,6 @@ export default function ToLike() {
   const [attempts, setAttempts] = useState(0);
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [gameComplete, setGameComplete] = useState(false);
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
@@ -182,6 +189,11 @@ export default function ToLike() {
       setAttempts(0);
       setMatchedPairs(0);
       setGameComplete(false);
+      setTime(0);
+      setTimerActive(false);
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
     };
 
     void loadCards();
@@ -291,35 +303,67 @@ export default function ToLike() {
   if (user?.id === allowedUserId) {
     return (
       <div className="flex flex-col items-center">
-        <div className="mb-5 flex items-center justify-between gap-5">
-          <select
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-            className="appearance-none rounded-lg border-2 border-purple-500 bg-white bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.7em] bg-[right_0.7em_center] bg-no-repeat p-4 pr-[2.5em] text-black"
-          >
-            <option value="" disabled>
-              Velg vanskelighetsgrad
-            </option>
-            <option value="easy">Easy</option>
-            <option value="normal">Normal</option>
-            <option value="hard">Hard</option>
-            <option value="insane">Insane</option>
-          </select>
-          <select
-            value={gameMode}
-            onChange={(e) => setGameMode(e.target.value as GameMode)}
-            className="appearance-none rounded-lg border-2 border-purple-500 bg-white bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.7em] bg-[right_0.7em_center] bg-no-repeat p-4 pr-[2.5em] text-black"
-          >
-            <option value="" disabled>
-              Velg spilltype
-            </option>
-            <option value="letters">Bokstaver</option>
-            <option value="AzureNetworking">Azure Networking</option>
-            <option value="Intune">Intune</option>
-          </select>
-          <div className="text-white">
-            Forsøk: {attempts} | Par funnet: {matchedPairs} | Tid:{" "}
-            {formatTime(time)}
+        <div className="mb-8 w-full max-w-4xl">
+          <div className="grid grid-cols-3 gap-8">
+            {/* Difficulty Selection */}
+            <div className="flex flex-col items-center gap-2">
+              <label className="text-lg font-medium text-white">
+                Vanskelighetsgrad
+              </label>
+              <select
+                value={difficulty}
+                onChange={(e) =>
+                  onDifficultyChange(e.target.value as Difficulty)
+                }
+                className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
+              >
+                <option value="easy">Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
+                <option value="insane">Insane</option>
+              </select>
+            </div>
+
+            {/* Game Type Selection */}
+            <div className="flex flex-col items-center gap-2">
+              <label className="text-lg font-medium text-white">
+                Spilltype
+              </label>
+              <select
+                value={gameMode}
+                onChange={(e) => setGameMode(e.target.value as GameMode)}
+                className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
+              >
+                <option value="letters">Bokstaver</option>
+                <option value="AzureNetworking">Azure Networking</option>
+                <option value="Intune">Intune</option>
+              </select>
+            </div>
+
+            {/* Game Stats */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-lg font-medium text-white">Statistikk</div>
+              <div className="grid grid-cols-3 gap-4 rounded-lg border-2 border-purple-500 bg-white/10 p-3">
+                <div className="flex w-24 flex-col items-center">
+                  <span className="text-sm text-gray-300">Forsøk</span>
+                  <span className="font-mono text-xl font-bold tabular-nums text-white">
+                    {attempts}
+                  </span>
+                </div>
+                <div className="flex w-24 flex-col items-center">
+                  <span className="text-sm text-gray-300">Par</span>
+                  <span className="font-mono text-xl font-bold tabular-nums text-white">
+                    {matchedPairs}
+                  </span>
+                </div>
+                <div className="flex w-24 flex-col items-center">
+                  <span className="text-sm text-gray-300">Tid</span>
+                  <span className="font-mono text-xl font-bold tabular-nums text-white">
+                    {formatTime(time)}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -341,7 +385,6 @@ export default function ToLike() {
             gap: "10px",
             width: "100%",
             maxWidth: "800px",
-            aspectRatio: DIFFICULTY_SETTINGS[difficulty].aspectRatio,
           }}
         >
           {cards.map((card, index) => (
@@ -351,32 +394,55 @@ export default function ToLike() {
               style={{
                 aspectRatio: DIFFICULTY_SETTINGS[difficulty].aspectRatio,
                 width: "100%",
-                backgroundColor: flipped[index] ? "#fff" : "#ccc",
+                backgroundColor: "#CC65FF",
+                backgroundImage: !flipped[index]
+                  ? "url('/EUCGames.png')"
+                  : "none",
+                backgroundSize: "80%",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
                 border: "1px solid #000",
-                transition: "background-color 0.3s",
+                transition: "all 0.3s",
                 position: "relative",
                 color: "black",
+                transform: flipped[index] ? "rotateY(180deg)" : "rotateY(0)",
+                transformStyle: "preserve-3d",
+                borderRadius: "10px",
               }}
             >
-              {flipped[index] &&
-                (gameMode === "letters" ? (
-                  <span style={{ fontSize: "24px" }}>{card}</span>
-                ) : (
-                  <img
-                    src={card}
-                    alt="Card"
-                    style={{
-                      width: "90%",
-                      height: "90%",
-                      objectFit: "contain",
-                      padding: "5px",
-                    }}
-                  />
-                ))}
+              {flipped[index] && (
+                <div
+                  style={{
+                    backgroundColor: "#fff",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transform: "rotateY(180deg)",
+                    borderRadius: "10px",
+                  }}
+                >
+                  {gameMode === "letters" ? (
+                    <span style={{ fontSize: "24px" }}>{card}</span>
+                  ) : (
+                    <img
+                      src={card}
+                      alt="Card"
+                      style={{
+                        width: "90%",
+                        height: "90%",
+                        objectFit: "contain",
+                        padding: "5px",
+                      }}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

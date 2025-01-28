@@ -15,8 +15,8 @@ export default function HighScores({ highscores }: HighscoresProps) {
     <div>
       {highscores.map((score) => (
         <div key={`${score.name}-${score.difficulty}`}>
-          {score.name} ({score.difficulty}): {score.tries} tries in {score.time}{" "}
-          seconds
+          {score.name} ({score.difficulty}): {score.tries} forsøk på{" "}
+          {score.time} sekunder
         </div>
       ))}
     </div>
