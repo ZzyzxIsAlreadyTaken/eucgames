@@ -52,7 +52,7 @@ export default function FebruaryGamesContent({
       <h2 className="text-2xl font-semibold">
         EUC <span className="text-[#CC65FF]">{gameName()}</span>
       </h2>
-      {isAdmin ? (
+      {isAdmin || isFebruary2025 ? (
         <>
           <Link
             href={`/spill/februar/highscores?difficulty=${difficulty}`}
