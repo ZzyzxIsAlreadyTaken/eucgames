@@ -8,12 +8,12 @@ import type { Difficulty } from "./ToLike";
 
 interface FebruaryGamesContentProps {
   isFebruary2025: boolean;
-  isAdmin: boolean;
+  earlyAccess: boolean;
 }
 
 export default function FebruaryGamesContent({
   isFebruary2025,
-  isAdmin,
+  earlyAccess,
 }: FebruaryGamesContentProps) {
   const searchParams = useSearchParams();
   const initialDifficulty =
@@ -52,7 +52,7 @@ export default function FebruaryGamesContent({
       <h2 className="text-2xl font-semibold">
         EUC <span className="text-[#CC65FF]">{gameName()}</span>
       </h2>
-      {isAdmin || isFebruary2025 ? (
+      {earlyAccess || isFebruary2025 ? (
         <>
           <Link
             href={`/spill/februar/highscores?difficulty=${difficulty}`}

@@ -1,8 +1,8 @@
-import isAdmin from "../_components/isAdmin";
+import { isAdmin, isBetaTester } from "../_components/getEarlyAccess";
 import HighScoresContent from "./HighScoresContent";
 
 export default async function HighScoresPage() {
-  const isAdminUser = await isAdmin();
+  const hasEarlyAccess = (await isAdmin()) || (await isBetaTester());
 
-  return <HighScoresContent isAdmin={isAdminUser} />;
+  return <HighScoresContent hasEarlyAccess={hasEarlyAccess} />;
 }
