@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import Username from "./Username";
 import { motion, AnimatePresence } from "framer-motion";
 import { saveScore } from "./saveScore";
-export type GameMode = "letters" | "AzureNetworking" | "Intune";
+export type GameMode =
+  | "letters"
+  | "AzureNetworking"
+  | "Intune"
+  | "M365"
+  | "EUCFjes";
 export type Difficulty = "easy" | "normal" | "hard" | "insane";
 type ImageResponse = {
   images: string[];
@@ -337,6 +342,8 @@ export default function ToLike({
                 <option value="letters">Bokstaver</option>
                 <option value="AzureNetworking">Azure Networking</option>
                 <option value="Intune">Intune</option>
+                <option value="M365">M365</option>
+                <option value="EUCFjes">EUCFjes</option>
               </select>
             </div>
 
