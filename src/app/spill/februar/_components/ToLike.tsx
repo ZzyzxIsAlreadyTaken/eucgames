@@ -21,6 +21,7 @@ interface GameSettings {
   pairs: number;
   gridColumns: number;
   aspectRatio: string;
+  maxTime: number; // Time in seconds
 }
 
 const DIFFICULTY_SETTINGS: Record<Difficulty, GameSettings> = {
@@ -28,21 +29,25 @@ const DIFFICULTY_SETTINGS: Record<Difficulty, GameSettings> = {
     pairs: 6,
     gridColumns: 4,
     aspectRatio: "4/3",
+    maxTime: 45, // 0.75 minutes
   },
   normal: {
     pairs: 10,
     gridColumns: 5,
     aspectRatio: "4/5",
+    maxTime: 120, // 2 minutes
   },
   hard: {
     pairs: 12,
     gridColumns: 6,
     aspectRatio: "6/6",
+    maxTime: 150, // 2.5 minutes
   },
   insane: {
     pairs: 18,
     gridColumns: 6,
     aspectRatio: "6/6",
+    maxTime: 180, // 3 minutes
   },
 };
 
@@ -114,11 +119,15 @@ const GameCompleteModal = ({
   time,
   onRestart,
   isSaving,
+  isTimeOut,
+  difficulty,
 }: {
   attempts: number;
   time: number;
   onRestart: () => void;
   isSaving: boolean;
+  isTimeOut: boolean;
+  difficulty: Difficulty;
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -128,10 +137,12 @@ const GameCompleteModal = ({
         className="rounded-lg bg-white p-8 text-center shadow-xl"
       >
         <h2 className="mb-4 text-2xl font-bold text-purple-800">
-          Gratulerer! 🎉
+          {isTimeOut ? "Sorry brah! Tiden er ute! ⏰" : "Gratulerer! 🎉"}
         </h2>
         <p className="mb-6 text-lg text-gray-700">
-          Du fullførte spillet med {attempts} forsøk på {formatTime(time)}!
+          {isTimeOut
+            ? `Du må kjappe deg litt... Tidbegrensingen på ${difficulty} er ${formatTime(DIFFICULTY_SETTINGS[difficulty].maxTime)}!`
+            : `Du fullførte spillet med ${attempts} forsøk på ${formatTime(time)}!`}
         </p>
         {isSaving ? (
           <p className="mb-4 text-gray-600">Lagrer resultat...</p>
@@ -179,6 +190,7 @@ export default function ToLike({
     null,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isTimeOut, setIsTimeOut] = useState(false);
 
   const username =
     user?.username ??
@@ -196,6 +208,7 @@ export default function ToLike({
       setGameComplete(false);
       setTime(0);
       setTimerActive(false);
+      setIsTimeOut(false);
       if (timerInterval) {
         clearInterval(timerInterval);
       }
@@ -236,9 +249,32 @@ export default function ToLike({
     }
   }, [flippedIndices, cards, difficulty]);
 
-  // New separate useEffect for score saving
+  // Modify the timer effect to set timeout state
   useEffect(() => {
-    if (gameComplete && !isSaving) {
+    if (timerActive && !gameComplete) {
+      const interval = setInterval(() => {
+        setTime((prevTime) => {
+          const newTime = prevTime + 1;
+          // Check if max time is reached
+          if (newTime >= DIFFICULTY_SETTINGS[difficulty].maxTime) {
+            setGameComplete(true);
+            setIsTimeOut(true);
+            setTimerActive(false);
+            clearInterval(interval);
+            return DIFFICULTY_SETTINGS[difficulty].maxTime;
+          }
+          return newTime;
+        });
+      }, 1000);
+      setTimerInterval(interval);
+
+      return () => clearInterval(interval);
+    }
+  }, [timerActive, gameComplete, difficulty]);
+
+  // Modify the score saving effect to only save when not timed out
+  useEffect(() => {
+    if (gameComplete && !isSaving && !isTimeOut) {
       setIsSaving(true);
       void saveScore(
         user?.id ?? "",
@@ -251,18 +287,7 @@ export default function ToLike({
         setIsSaving(false);
       });
     }
-  }, [gameComplete]);
-
-  useEffect(() => {
-    if (timerActive && !gameComplete) {
-      const interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
-      }, 1000);
-      setTimerInterval(interval);
-
-      return () => clearInterval(interval);
-    }
-  }, [timerActive, gameComplete]);
+  }, [gameComplete, isTimeOut]);
 
   const handleCardClick = (index: number) => {
     if (gameComplete || flipped[index] || flippedIndices.length === 2) return;
@@ -291,6 +316,7 @@ export default function ToLike({
     setGameComplete(false);
     setTime(0);
     setTimerActive(false);
+    setIsTimeOut(false);
     if (timerInterval) {
       clearInterval(timerInterval);
     }
@@ -322,10 +348,22 @@ export default function ToLike({
                 }
                 className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
               >
-                <option value="easy">Easy</option>
-                <option value="normal">Normal</option>
-                <option value="hard">Hard</option>
-                <option value="insane">Insane</option>
+                <option value="easy">
+                  Easy - ({DIFFICULTY_SETTINGS.easy.pairs} par, tid:{" "}
+                  {formatTime(DIFFICULTY_SETTINGS.easy.maxTime)})
+                </option>
+                <option value="normal">
+                  Normal - ({DIFFICULTY_SETTINGS.normal.pairs} par, tid:{" "}
+                  {formatTime(DIFFICULTY_SETTINGS.normal.maxTime)})
+                </option>
+                <option value="hard">
+                  Hard - ({DIFFICULTY_SETTINGS.hard.pairs} par, tid:{" "}
+                  {formatTime(DIFFICULTY_SETTINGS.hard.maxTime)})
+                </option>
+                <option value="insane">
+                  Insane - ({DIFFICULTY_SETTINGS.insane.pairs} par, tid:{" "}
+                  {formatTime(DIFFICULTY_SETTINGS.insane.maxTime)})
+                </option>
               </select>
             </div>
 
@@ -365,7 +403,13 @@ export default function ToLike({
                 </div>
                 <div className="flex w-24 flex-col items-center">
                   <span className="text-sm text-gray-300">Tid</span>
-                  <span className="font-mono text-xl font-bold tabular-nums text-white">
+                  <span
+                    className={`font-mono text-xl font-bold tabular-nums ${
+                      time >= DIFFICULTY_SETTINGS[difficulty].maxTime * 0.7
+                        ? "text-red-500"
+                        : "text-white"
+                    }`}
+                  >
                     {formatTime(time)}
                   </span>
                 </div>
@@ -381,6 +425,8 @@ export default function ToLike({
               time={time}
               onRestart={handleRestart}
               isSaving={isSaving}
+              isTimeOut={isTimeOut}
+              difficulty={difficulty}
             />
           </AnimatePresence>
         )}

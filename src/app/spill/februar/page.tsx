@@ -1,5 +1,10 @@
 import FebruaryGamesContent from "./_components/FebruaryGamesContent";
 import { isAdmin, isBetaTester } from "./_components/getEarlyAccess";
+import { type Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "EUC Games - Februar",
+};
 
 export default async function FebruaryGames() {
   const currentDate = new Date();
