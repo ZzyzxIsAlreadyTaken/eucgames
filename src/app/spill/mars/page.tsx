@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import GameWrapper from "./_components/gameWrapper";
 
 export const metadata: Metadata = {
   title: "EUC Games - Mars",
@@ -26,7 +27,7 @@ export default async function MarchGames() {
         <h2 className="text-2xl font-semibold">
           EUC <span className="text-[#CC65FF]">{gameName()}</span>
         </h2>
-        {isMarch2025 ? <div>Spill</div> : <div>Låst</div>}
+        {isMarch2025 ? <GameWrapper /> : <GameWrapper />}
       </div>
     </main>
   );
