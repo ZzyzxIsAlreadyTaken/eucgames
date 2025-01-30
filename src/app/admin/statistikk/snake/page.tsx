@@ -2,7 +2,7 @@ import { clerkClient } from "../../../../lib/clerkClient";
 import { db } from "~/server/db";
 import { scores } from "~/server/db/schema";
 import { desc, sql } from "drizzle-orm";
-import { startOfMonth, eachDayOfInterval, isWithinInterval } from "date-fns";
+import { eachDayOfInterval, isWithinInterval } from "date-fns";
 
 interface StatsCardProps {
   title: string;
@@ -13,7 +13,7 @@ interface StatsCardProps {
 function ActivityGraph({ data, dates }: { data: number[]; dates: Date[] }) {
   const max = Math.max(...data);
   return (
-    <div>
+    <div className="w-full">
       <div className="flex h-12 items-end gap-0.5">
         {data.map((value, i) => {
           // Calculate opacity based on value (higher value = darker)
@@ -21,7 +21,12 @@ function ActivityGraph({ data, dates }: { data: number[]; dates: Date[] }) {
           return (
             <div
               key={i}
-              title={`${dates[i]?.toLocaleDateString() ?? ""}: ${value} visits`}
+              title={`${
+                dates[i]?.toLocaleDateString("no", {
+                  day: "2-digit",
+                  month: "short",
+                }) ?? ""
+              } Antall: ${value}`}
               className="flex-1 transition-all hover:bg-purple-300"
               style={{
                 height: `${(value / max) * 100}%`,
@@ -48,12 +53,15 @@ function StatsCard({
   value,
   graph,
   dates,
-}: StatsCardProps & { dates?: Date[] }) {
+  className,
+}: StatsCardProps & { dates?: Date[]; className?: string }) {
   return (
-    <div className="rounded-lg bg-white p-6 shadow">
+    <div className={`rounded-lg bg-white p-6 shadow ${className ?? ""}`}>
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
       {graph && dates ? (
-        <ActivityGraph data={graph} dates={dates} />
+        <div>
+          <ActivityGraph data={graph} dates={dates} />
+        </div>
       ) : (
         <p className="mt-2 text-3xl font-semibold text-gray-900">{value}</p>
       )}
@@ -159,17 +167,18 @@ async function AnalyticsPage() {
     <div className="p-8">
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard title="Bruker på plattformen" value={stats.totalUsers} />
-
         <StatsCard title="Aktive brukere" value={stats.activeUsers} />
         <StatsCard
           title="Daglig aktivitet"
           graph={dailyActivity}
           dates={daysInMonth}
+          className="md:col-span-2"
         />
         <StatsCard
           title="Spill per dag"
           graph={dailyGameCounts}
           dates={daysInMonth}
+          className="md:col-span-2"
         />
         <StatsCard title="Total spill" value={stats.totalGames} />
         <StatsCard

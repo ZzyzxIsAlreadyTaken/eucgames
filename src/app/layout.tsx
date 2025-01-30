@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import AuthButtons from "../components/AuthButtons";
 import FeedbackBadge from "../components/FeedbackBadge";
 import Link from "next/link";
+import { checkRole } from "~/utils/roles";
 
 export const metadata: Metadata = {
   title: "EUC Games",
@@ -13,10 +14,11 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/joystick.png" }],
 };
 
-function TopNav() {
+async function TopNav() {
+  const isAdmin = await checkRole("admin");
   return (
-    <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-gray-200 bg-[#CC65FF] p-4">
-      <div>
+    <nav className="fixed left-0 right-0 top-0 z-50 flex border-b border-gray-200 bg-[#CC65FF] p-4">
+      <div className="flex-none">
         <Link
           href="/"
           className="flex flex-row items-center justify-center gap-2 text-xl font-bold text-white hover:text-gray-100"
@@ -24,7 +26,12 @@ function TopNav() {
           <img src="/EUC.png" alt="EUC Games" className="h-10 w-10" /> EUC Games
         </Link>
       </div>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
+        {isAdmin && (
+          <button className="rounded px-4 py-2 text-black hover:text-[#FFF]">
+            <Link href="/admin">Admin</Link>
+          </button>
+        )}
         <AuthButtons />
       </div>
     </nav>

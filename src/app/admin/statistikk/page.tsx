@@ -45,9 +45,15 @@ function ActivityGraph({ data, dates }: { data: number[]; dates: Date[] }) {
   );
 }
 
-function StatsCard({ title, value, graph, dates }: StatsCardProps) {
+function StatsCard({
+  title,
+  value,
+  graph,
+  dates,
+  className,
+}: StatsCardProps & { className?: string }) {
   return (
-    <div className="rounded-lg bg-white p-6 shadow-md">
+    <div className={`rounded-lg bg-white p-6 shadow ${className ?? ""}`}>
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
       {graph && dates ? (
         <ActivityGraph data={graph} dates={dates} />
@@ -152,7 +158,27 @@ async function AnalyticsPage() {
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Overordnet Statistikk</h1>
+        <h1 className="text-2xl font-bold">Statistikk</h1>
+        <nav className="mt-4 flex gap-4">
+          <Link
+            href="/admin/statistikk/snake"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">Januar</span>
+          </Link>
+          <Link
+            href="/admin/statistikk/memory"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">Februar</span>
+          </Link>
+          <Link
+            href="/admin/statistikk/memory"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">Mars</span>
+          </Link>
+        </nav>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -162,21 +188,8 @@ async function AnalyticsPage() {
           title="Aktivitet"
           graph={dailyActivity}
           dates={daysInMonth}
+          className="col-span-2"
         />
-        <Link
-          href="/admin/statistikk/snake"
-          className="rounded-lg bg-white p-6 shadow-md hover:bg-gray-50"
-        >
-          <h3 className="text-sm font-medium text-gray-500">
-            Snake Statistikk
-          </h3>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-lg font-medium text-gray-900">
-              Se detaljer
-            </span>
-            <span className="text-gray-500">→</span>
-          </div>
-        </Link>
         <StatsCard title="Total spill" value={stats.totalGames} />
         <StatsCard
           title="Gjennomsnittlig poengsum"
