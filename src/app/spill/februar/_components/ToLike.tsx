@@ -268,11 +268,6 @@ export default function ToLike({
   const { user } = useUser();
   const allowedUserId = "user_2qTuThIX06GoEa47zOVx8InACD9";
 
-  // Add debug logging
-  console.log("Current user ID:", user?.id);
-  console.log("Allowed user ID:", allowedUserId);
-  console.log("Do they match?", user?.id === allowedUserId);
-
   const [gameMode, setGameMode] = useState<GameMode>("letters");
   const [cards, setCards] = useState<string[]>([]);
   const [flipped, setFlipped] = useState<boolean[]>([]);
