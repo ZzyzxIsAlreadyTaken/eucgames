@@ -164,6 +164,102 @@ interface ToLikeProps {
   onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
+interface CardProps {
+  index: number;
+  card: string;
+  flipped: boolean;
+  gameMode: GameMode;
+  onClick: () => void;
+  aspectRatio: string;
+}
+
+const Card: React.FC<CardProps> = ({
+  index,
+  card,
+  flipped,
+  gameMode,
+  onClick,
+  aspectRatio,
+}) => {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        aspectRatio,
+        width: "100%",
+        position: "relative",
+        perspective: "1000px",
+      }}
+    >
+      <motion.div
+        initial={false}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{
+          duration: 0.6,
+          type: "spring",
+          stiffness: 500,
+          damping: 30,
+        }}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* Front of card */}
+        <motion.div
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            backfaceVisibility: "hidden",
+            backgroundColor: "#CC65FF",
+            backgroundImage: "url('/EUCGames.png')",
+            backgroundSize: "80%",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            borderRadius: "10px",
+            border: "1px solid #000",
+          }}
+        />
+
+        {/* Back of card */}
+        <motion.div
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            backfaceVisibility: "hidden",
+            backgroundColor: "#fff",
+            transform: "rotateY(180deg)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "10px",
+            border: "1px solid #000",
+          }}
+        >
+          {gameMode === "letters" ? (
+            <span style={{ fontSize: "24px", color: "#000" }}>{card}</span>
+          ) : (
+            <img
+              src={card}
+              alt="Card"
+              style={{
+                width: "90%",
+                height: "90%",
+                objectFit: "contain",
+                padding: "5px",
+              }}
+            />
+          )}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
 export default function ToLike({
   difficulty,
   onDifficultyChange,
@@ -441,62 +537,15 @@ export default function ToLike({
           }}
         >
           {cards.map((card, index) => (
-            <div
+            <Card
               key={index}
+              index={index}
+              card={card}
+              flipped={flipped[index] ?? false}
+              gameMode={gameMode}
               onClick={() => handleCardClick(index)}
-              style={{
-                aspectRatio: DIFFICULTY_SETTINGS[difficulty].aspectRatio,
-                width: "100%",
-                backgroundColor: "#CC65FF",
-                backgroundImage: !flipped[index]
-                  ? "url('/EUCGames.png')"
-                  : "none",
-                backgroundSize: "80%",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                border: "1px solid #000",
-                transition: "all 0.3s",
-                position: "relative",
-                color: "black",
-                transform: flipped[index] ? "rotateY(180deg)" : "rotateY(0)",
-                transformStyle: "preserve-3d",
-                borderRadius: "10px",
-              }}
-            >
-              {flipped[index] && (
-                <div
-                  style={{
-                    backgroundColor: "#fff",
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transform: "rotateY(180deg)",
-                    borderRadius: "10px",
-                  }}
-                >
-                  {gameMode === "letters" ? (
-                    <span style={{ fontSize: "24px" }}>{card}</span>
-                  ) : (
-                    <img
-                      src={card}
-                      alt="Card"
-                      style={{
-                        width: "90%",
-                        height: "90%",
-                        objectFit: "contain",
-                        padding: "5px",
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
+              aspectRatio={DIFFICULTY_SETTINGS[difficulty].aspectRatio}
+            />
           ))}
         </div>
       </div>
