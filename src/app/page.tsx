@@ -6,7 +6,12 @@ export default function HomePage() {
   const currentMonth = new Date().getMonth();
   const months = [
     { name: "Januar", href: "/spill/januar", locked: false, game: "EUC Snake" },
-    { name: "Februar", href: "/spill/februar", locked: true },
+    {
+      name: "Februar",
+      href: "/spill/februar",
+      locked: false,
+      game: "EUC Memory",
+    },
     { name: "Mars", href: "/spill/mars", locked: true },
     { name: "April", href: "/spill/april", locked: true },
     { name: "Mai", href: "/spill/mai", locked: true },

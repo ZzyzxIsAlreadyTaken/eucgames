@@ -413,137 +413,122 @@ export default function ToLike({
     }
   };
 
-  if (user?.id !== allowedUserId) {
-    return (
-      <p>
-        Nu va du smart, nu va du veldig smart
-        <Username />, ikke noe spill her enda...
-      </p>
-    );
-  }
+  return (
+    <div className="flex flex-col items-center">
+      <div className="mb-8 w-full max-w-4xl">
+        <div className="grid grid-cols-3 gap-8">
+          {/* Difficulty Selection */}
+          <div className="flex flex-col items-center gap-2">
+            <label className="text-lg font-medium text-white">
+              Vanskelighetsgrad
+            </label>
+            <select
+              value={difficulty}
+              onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
+              className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
+            >
+              <option value="easy">
+                Easy - ({DIFFICULTY_SETTINGS.easy.pairs} par, tid:{" "}
+                {formatTime(DIFFICULTY_SETTINGS.easy.maxTime)})
+              </option>
+              <option value="normal">
+                Normal - ({DIFFICULTY_SETTINGS.normal.pairs} par, tid:{" "}
+                {formatTime(DIFFICULTY_SETTINGS.normal.maxTime)})
+              </option>
+              <option value="hard">
+                Hard - ({DIFFICULTY_SETTINGS.hard.pairs} par, tid:{" "}
+                {formatTime(DIFFICULTY_SETTINGS.hard.maxTime)})
+              </option>
+              <option value="insane">
+                Insane - ({DIFFICULTY_SETTINGS.insane.pairs} par, tid:{" "}
+                {formatTime(DIFFICULTY_SETTINGS.insane.maxTime)})
+              </option>
+            </select>
+          </div>
 
-  if (user?.id === allowedUserId) {
-    return (
-      <div className="flex flex-col items-center">
-        <div className="mb-8 w-full max-w-4xl">
-          <div className="grid grid-cols-3 gap-8">
-            {/* Difficulty Selection */}
-            <div className="flex flex-col items-center gap-2">
-              <label className="text-lg font-medium text-white">
-                Vanskelighetsgrad
-              </label>
-              <select
-                value={difficulty}
-                onChange={(e) =>
-                  onDifficultyChange(e.target.value as Difficulty)
-                }
-                className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
-              >
-                <option value="easy">
-                  Easy - ({DIFFICULTY_SETTINGS.easy.pairs} par, tid:{" "}
-                  {formatTime(DIFFICULTY_SETTINGS.easy.maxTime)})
-                </option>
-                <option value="normal">
-                  Normal - ({DIFFICULTY_SETTINGS.normal.pairs} par, tid:{" "}
-                  {formatTime(DIFFICULTY_SETTINGS.normal.maxTime)})
-                </option>
-                <option value="hard">
-                  Hard - ({DIFFICULTY_SETTINGS.hard.pairs} par, tid:{" "}
-                  {formatTime(DIFFICULTY_SETTINGS.hard.maxTime)})
-                </option>
-                <option value="insane">
-                  Insane - ({DIFFICULTY_SETTINGS.insane.pairs} par, tid:{" "}
-                  {formatTime(DIFFICULTY_SETTINGS.insane.maxTime)})
-                </option>
-              </select>
-            </div>
+          {/* Game Type Selection */}
+          <div className="flex flex-col items-center gap-2">
+            <label className="text-lg font-medium text-white">Spilltype</label>
+            <select
+              value={gameMode}
+              onChange={(e) => setGameMode(e.target.value as GameMode)}
+              className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
+            >
+              <option value="letters">Bokstaver</option>
+              <option value="AzureNetworking">Azure Networking</option>
+              <option value="Intune">Intune</option>
+              <option value="M365">M365</option>
+              <option value="EUCFjes">EUCFjes</option>
+            </select>
+          </div>
 
-            {/* Game Type Selection */}
-            <div className="flex flex-col items-center gap-2">
-              <label className="text-lg font-medium text-white">
-                Spilltype
-              </label>
-              <select
-                value={gameMode}
-                onChange={(e) => setGameMode(e.target.value as GameMode)}
-                className="w-full rounded-lg border-2 border-purple-500 bg-white p-3 text-black shadow-md transition-colors hover:border-purple-600 focus:border-purple-600 focus:outline-none"
-              >
-                <option value="letters">Bokstaver</option>
-                <option value="AzureNetworking">Azure Networking</option>
-                <option value="Intune">Intune</option>
-                <option value="M365">M365</option>
-                <option value="EUCFjes">EUCFjes</option>
-              </select>
-            </div>
-
-            {/* Game Stats */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="text-lg font-medium text-white">Statistikk</div>
-              <div className="grid grid-cols-3 gap-4 rounded-lg border-2 border-purple-500 bg-white/10 p-3">
-                <div className="flex w-24 flex-col items-center">
-                  <span className="text-sm text-gray-300">Forsøk</span>
-                  <span className="font-mono text-xl font-bold tabular-nums text-white">
-                    {attempts}
-                  </span>
-                </div>
-                <div className="flex w-24 flex-col items-center">
-                  <span className="text-sm text-gray-300">Par</span>
-                  <span className="font-mono text-xl font-bold tabular-nums text-white">
-                    {matchedPairs}
-                  </span>
-                </div>
-                <div className="flex w-24 flex-col items-center">
-                  <span className="text-sm text-gray-300">Tid</span>
-                  <span
-                    className={`font-mono text-xl font-bold tabular-nums ${
-                      time >= DIFFICULTY_SETTINGS[difficulty].maxTime * 0.7
-                        ? "text-red-500"
-                        : "text-white"
-                    }`}
-                  >
-                    {formatTime(time)}
-                  </span>
-                </div>
+          {/* Game Stats */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-lg font-medium text-white">Statistikk</div>
+            <div className="grid grid-cols-3 gap-4 rounded-lg border-2 border-purple-500 bg-white/10 p-3">
+              <div className="flex w-24 flex-col items-center">
+                <span className="text-sm text-gray-300">Forsøk</span>
+                <span className="font-mono text-xl font-bold tabular-nums text-white">
+                  {attempts}
+                </span>
+              </div>
+              <div className="flex w-24 flex-col items-center">
+                <span className="text-sm text-gray-300">Par</span>
+                <span className="font-mono text-xl font-bold tabular-nums text-white">
+                  {matchedPairs}
+                </span>
+              </div>
+              <div className="flex w-24 flex-col items-center">
+                <span className="text-sm text-gray-300">Tid</span>
+                <span
+                  className={`font-mono text-xl font-bold tabular-nums ${
+                    time >= DIFFICULTY_SETTINGS[difficulty].maxTime * 0.7
+                      ? "text-red-500"
+                      : "text-white"
+                  }`}
+                >
+                  {formatTime(time)}
+                </span>
               </div>
             </div>
           </div>
         </div>
-
-        {gameComplete && (
-          <AnimatePresence>
-            <GameCompleteModal
-              attempts={attempts}
-              time={time}
-              onRestart={handleRestart}
-              isSaving={isSaving}
-              isTimeOut={isTimeOut}
-              difficulty={difficulty}
-            />
-          </AnimatePresence>
-        )}
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${DIFFICULTY_SETTINGS[difficulty].gridColumns}, 1fr)`,
-            gap: "10px",
-            width: "100%",
-            maxWidth: "800px",
-          }}
-        >
-          {cards.map((card, index) => (
-            <Card
-              key={index}
-              index={index}
-              card={card}
-              flipped={flipped[index] ?? false}
-              gameMode={gameMode}
-              onClick={() => handleCardClick(index)}
-              aspectRatio={DIFFICULTY_SETTINGS[difficulty].aspectRatio}
-            />
-          ))}
-        </div>
       </div>
-    );
-  }
+
+      {gameComplete && (
+        <AnimatePresence>
+          <GameCompleteModal
+            attempts={attempts}
+            time={time}
+            onRestart={handleRestart}
+            isSaving={isSaving}
+            isTimeOut={isTimeOut}
+            difficulty={difficulty}
+          />
+        </AnimatePresence>
+      )}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${DIFFICULTY_SETTINGS[difficulty].gridColumns}, 1fr)`,
+          gap: "10px",
+          width: "100%",
+          maxWidth: "800px",
+        }}
+      >
+        {cards.map((card, index) => (
+          <Card
+            key={index}
+            index={index}
+            card={card}
+            flipped={flipped[index] ?? false}
+            gameMode={gameMode}
+            onClick={() => handleCardClick(index)}
+            aspectRatio={DIFFICULTY_SETTINGS[difficulty].aspectRatio}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
