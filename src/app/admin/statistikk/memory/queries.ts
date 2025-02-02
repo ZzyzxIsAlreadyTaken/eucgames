@@ -30,10 +30,13 @@ export interface MemoryStats {
 }
 
 export const getMemoryStats = async (): Promise<MemoryStats> => {
+  const mockUserFilter = sql`"userId" NOT LIKE 'mock-user-%'`;
+
   // Get total number of games
   const totalGamesResult = await db
     .select({ count: sql<number>`count(*)` })
-    .from(scoresMemory);
+    .from(scoresMemory)
+    .where(mockUserFilter);
   const totalGames = totalGamesResult[0]?.count ?? 0;
 
   // Get games per day (average over the last 30 days)
@@ -45,7 +48,7 @@ export const getMemoryStats = async (): Promise<MemoryStats> => {
       gamesPerDay: sql<number>`ROUND(COUNT(*)::numeric / 30, 1)`,
     })
     .from(scoresMemory)
-    .where(sql`created_at >= ${thirtyDaysAgo}`);
+    .where(sql`${mockUserFilter} AND created_at >= ${thirtyDaysAgo}`);
   const gamesPerDay = gamesPerDayResult[0]?.gamesPerDay ?? 0;
 
   // Get unique players count
@@ -53,7 +56,8 @@ export const getMemoryStats = async (): Promise<MemoryStats> => {
     .select({
       count: sql<number>`COUNT(DISTINCT "userId")`,
     })
-    .from(scoresMemory);
+    .from(scoresMemory)
+    .where(mockUserFilter);
   const uniquePlayers = uniquePlayersResult[0]?.count ?? 0;
 
   // Get most and least popular game modes
@@ -63,6 +67,7 @@ export const getMemoryStats = async (): Promise<MemoryStats> => {
       count: sql<number>`count(*)`,
     })
     .from(scoresMemory)
+    .where(mockUserFilter)
     .groupBy(scoresMemory.gameMode)
     .orderBy(sql`count(*) DESC`);
 
@@ -77,6 +82,7 @@ export const getMemoryStats = async (): Promise<MemoryStats> => {
       count: sql<number>`count(*)`,
     })
     .from(scoresMemory)
+    .where(mockUserFilter)
     .groupBy(scoresMemory.difficulty)
     .orderBy(sql`count(*) DESC`);
 
@@ -102,6 +108,7 @@ export const getMemoryStats = async (): Promise<MemoryStats> => {
       insaneTries: sql<number>`MIN(CASE WHEN difficulty = 'insane' THEN tries END)`,
     })
     .from(scoresMemory)
+    .where(mockUserFilter)
     .groupBy(scoresMemory.userId, scoresMemory.username).orderBy(sql`
       COALESCE(MIN(CASE WHEN difficulty = 'easy' THEN time * tries END), 999999) +
       COALESCE(MIN(CASE WHEN difficulty = 'normal' THEN time * tries END), 999999) +
