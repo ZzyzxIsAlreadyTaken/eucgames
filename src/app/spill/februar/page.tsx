@@ -2,6 +2,7 @@ import FebruaryGamesContent from "./_components/FebruaryGamesContent";
 import FebruarySocial from "./_components/_social/FebruarySocial";
 import { isAdmin, isBetaTester } from "./_components/getEarlyAccess";
 import { type Metadata } from "next";
+import { SignedIn } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "EUC Games - Februar",
@@ -20,7 +21,9 @@ export default async function FebruaryGames() {
         isFebruary2025={isFebruary2025}
         earlyAccess={hasEarlyAccess}
       />
-      {hasEarlyAccess ? <FebruarySocial /> : null}
+      <SignedIn>
+        <FebruarySocial />
+      </SignedIn>
     </main>
   );
 }
