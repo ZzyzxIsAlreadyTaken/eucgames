@@ -365,10 +365,10 @@ export default function ToLike({
 
   // Modify the score saving effect to only save when not timed out
   useEffect(() => {
-    if (gameComplete && !isSaving && !isTimeOut) {
+    if (gameComplete && !isSaving && !isTimeOut && user?.id) {
       setIsSaving(true);
       void saveScore(
-        user?.id ?? "",
+        user.id,
         username ?? "",
         attempts,
         time,
@@ -378,7 +378,7 @@ export default function ToLike({
         setIsSaving(false);
       });
     }
-  }, [gameComplete, isTimeOut]);
+  }, [gameComplete, isTimeOut, user?.id]);
 
   const handleCardClick = (index: number) => {
     if (gameComplete || flipped[index] || flippedIndices.length === 2) return;
