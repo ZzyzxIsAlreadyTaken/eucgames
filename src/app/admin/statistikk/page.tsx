@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "~/server/db";
-import { scores } from "~/server/db/schema";
+import { scores, scoresMemory } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
 import { clerkClient } from "../../../lib/clerkClient";
 import { eachDayOfInterval, startOfMonth, isWithinInterval } from "date-fns";
@@ -65,7 +65,6 @@ function StatsCard({
 }
 
 async function AnalyticsPage() {
-  // Fetch users
   const users = await clerkClient.users.getUserList({
     limit: 100,
   });
@@ -75,54 +74,140 @@ async function AnalyticsPage() {
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  // Enhanced game stats query
-  const gameStats = await db
-    .select({
-      totalGames: sql<number>`count(*)`,
-      avgScore: sql<number>`avg(${scores.score})`,
-      maxScore: sql<number>`max(${scores.score})`,
-      activeUsers: sql<number>`count(distinct ${scores.userId})`,
-      gamesLastDay: sql<number>`count(*) filter (where ${scores.createdAt} > ${oneDayAgo})`,
-      gamesLastWeek: sql<number>`count(*) filter (where ${scores.createdAt} > ${sevenDaysAgo})`,
-      avgGamesPerUser: sql<number>`round(cast(count(*) as decimal) / nullif(count(distinct ${scores.userId}), 0), 1)`,
-      peakConcurrentPlayers: sql<number>`
-        (
-          select count(distinct ${scores.userId})
-          from ${scores}
-          where ${scores.createdAt} > now() - interval '1 hour'
-          group by date_trunc('hour', ${scores.createdAt})
-          order by count(distinct ${scores.userId}) desc
-          limit 1
-        )
-      `,
-    })
-    .from(scores)
-    .where(sql`${scores.game} = 'snake'`);
+  const mockUserFilter = sql`"userId" NOT LIKE 'mock-user-%'`;
 
-  // Calculate daily activity
+  // Combined stats query for both games
+  const combinedStats = await db.select({
+    totalGames: sql<number>`(
+        SELECT COUNT(*) FROM ${scores} WHERE game = 'snake' AND "userId" NOT LIKE 'mock-user-%'
+      ) + (
+        SELECT COUNT(*) FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+      )`,
+    activeUsers: sql<number>`COUNT(DISTINCT "userId")`,
+    gamesLastDay: sql<number>`(
+        SELECT COUNT(*) FROM ${scores} 
+        WHERE game = 'snake' AND created_at > ${oneDayAgo} AND "userId" NOT LIKE 'mock-user-%'
+      ) + (
+        SELECT COUNT(*) FROM ${scoresMemory} 
+        WHERE created_at > ${oneDayAgo} AND "userId" NOT LIKE 'mock-user-%'
+      )`,
+    gamesLastWeek: sql<number>`(
+        SELECT COUNT(*) FROM ${scores} 
+        WHERE game = 'snake' AND created_at > ${sevenDaysAgo} AND "userId" NOT LIKE 'mock-user-%'
+      ) + (
+        SELECT COUNT(*) FROM ${scoresMemory} 
+        WHERE created_at > ${sevenDaysAgo} AND "userId" NOT LIKE 'mock-user-%'
+      )`,
+    avgGamesPerUser: sql<number>`
+        ROUND(
+          CAST((
+            SELECT COUNT(*) FROM ${scores} WHERE game = 'snake' AND "userId" NOT LIKE 'mock-user-%'
+          ) + (
+            SELECT COUNT(*) FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+          ) AS decimal
+        ) / NULLIF(COUNT(DISTINCT "userId"), 0), 1)
+      `,
+    peakHour: sql<number>`(
+        SELECT EXTRACT(HOUR FROM created_at)::integer as hour
+        FROM (
+          SELECT created_at FROM ${scores} WHERE "userId" NOT LIKE 'mock-user-%'
+          UNION ALL
+          SELECT created_at FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+        ) combined
+        GROUP BY hour
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+      )`,
+    crossGamePlayers: sql<number>`(
+        SELECT COUNT(DISTINCT s."userId")
+        FROM ${scores} s
+        INNER JOIN ${scoresMemory} m ON s."userId" = m."userId"
+        WHERE s."userId" NOT LIKE 'mock-user-%'
+      )`,
+    mostActiveDay: sql<string>`(
+        SELECT TO_CHAR(created_at, 'Day')
+        FROM (
+          SELECT created_at FROM ${scores} WHERE "userId" NOT LIKE 'mock-user-%'
+          UNION ALL
+          SELECT created_at FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+        ) combined
+        GROUP BY TO_CHAR(created_at, 'Day')
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+      )`,
+    weeklyGrowth: sql<number>`(
+        SELECT ROUND(((this_week::float / NULLIF(last_week, 0)) - 1) * 100)
+        FROM (
+          SELECT 
+            COUNT(*) FILTER (WHERE created_at > ${sevenDaysAgo}) as this_week,
+            COUNT(*) FILTER (WHERE created_at > ${new Date(sevenDaysAgo.getTime() - 7 * 24 * 60 * 60 * 1000)} AND created_at <= ${sevenDaysAgo}) as last_week
+          FROM (
+            SELECT created_at FROM ${scores} WHERE "userId" NOT LIKE 'mock-user-%'
+            UNION ALL
+            SELECT created_at FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+          ) combined
+        ) weekly_counts
+      )`,
+    avgGamesPerSession: sql<number>`(
+        SELECT ROUND(CAST(COUNT(*) AS decimal) / NULLIF(SUM(new_session), 0), 1)
+        FROM (
+          SELECT 
+            CASE 
+              WHEN created_at - LAG(created_at) OVER (PARTITION BY "userId" ORDER BY created_at) > INTERVAL '30 minutes'
+              THEN 1
+              ELSE 0
+            END as new_session
+          FROM (
+            SELECT "userId", created_at 
+            FROM ${scores} 
+            WHERE "userId" NOT LIKE 'mock-user-%'
+            UNION ALL
+            SELECT "userId", created_at 
+            FROM ${scoresMemory} 
+            WHERE "userId" NOT LIKE 'mock-user-%'
+          ) combined
+        ) sessions
+      )`,
+  }).from(sql`(
+      SELECT "userId" FROM ${scores} WHERE game = 'snake' AND "userId" NOT LIKE 'mock-user-%'
+      UNION
+      SELECT "userId" FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+    ) as combined_users`);
+
+  // Calculate daily activity for both games
   const monthStart = startOfMonth(now);
   const daysInMonth = eachDayOfInterval({
     start: monthStart,
     end: now,
   });
 
-  // Get all scores for the current month
-  const monthlyScores = await db
+  // Get all scores for the current month from both games
+  const monthlySnakeScores = await db
     .select({
-      userId: scores.userId,
       createdAt: scores.createdAt,
     })
     .from(scores)
     .where(
-      sql`${scores.game} = 'snake' AND ${scores.createdAt} >= ${monthStart}`,
+      sql`game = 'snake' AND created_at >= ${monthStart} AND "userId" NOT LIKE 'mock-user-%'`,
     );
 
-  // Calculate daily activity based on unique players per day
+  const monthlyMemoryScores = await db
+    .select({
+      createdAt: scoresMemory.createdAt,
+    })
+    .from(scoresMemory)
+    .where(
+      sql`created_at >= ${monthStart} AND "userId" NOT LIKE 'mock-user-%'`,
+    );
+
+  // Combine scores for daily activity
+  const allMonthlyScores = [...monthlySnakeScores, ...monthlyMemoryScores];
+
   const dailyActivity = daysInMonth.map((day) => {
     const dayEnd = new Date(day);
     dayEnd.setHours(23, 59, 59, 999);
 
-    return monthlyScores.filter((score) =>
+    return allMonthlyScores.filter((score) =>
       isWithinInterval(new Date(score.createdAt), {
         start: day,
         end: dayEnd,
@@ -130,29 +215,14 @@ async function AnalyticsPage() {
     ).length;
   });
 
-  // Calculate returning players (players who have played more than once)
-  const playerFrequency = await db
-    .select({
-      userId: scores.userId,
-      gameCount: sql<number>`count(*)`,
-    })
-    .from(scores)
-    .where(sql`${scores.game} = 'snake'`)
-    .groupBy(scores.userId)
-    .having(sql`count(*) > 1`);
-
   const stats = {
     totalUsers: users.data?.length ?? 0,
-    activeUsers: gameStats[0]?.activeUsers ?? 0,
-    totalGames: gameStats[0]?.totalGames ?? 0,
-    averageScore: Math.round(gameStats[0]?.avgScore ?? 0),
-    gamesLastDay: gameStats[0]?.gamesLastDay ?? 0,
-    gamesLastWeek: gameStats[0]?.gamesLastWeek ?? 0,
-    avgGamesPerUser: gameStats[0]?.avgGamesPerUser ?? 0,
+    activeUsers: combinedStats[0]?.activeUsers ?? 0,
+    totalGames: combinedStats[0]?.totalGames ?? 0,
+    gamesLastDay: combinedStats[0]?.gamesLastDay ?? 0,
+    gamesLastWeek: combinedStats[0]?.gamesLastWeek ?? 0,
+    avgGamesPerUser: combinedStats[0]?.avgGamesPerUser ?? 0,
     averageSessionLength: "2m 30s*", // TODO: Implement session tracking
-    peakConcurrentPlayers: gameStats[0]?.peakConcurrentPlayers ?? 0,
-    returningPlayers: playerFrequency.length,
-    conversionRate: `${Math.round(((gameStats[0]?.activeUsers ?? 0) / (users.data?.length || 1)) * 100)}%`,
   };
 
   return (
@@ -178,42 +248,94 @@ async function AnalyticsPage() {
           >
             <span className="font-medium text-gray-900">Mars</span>
           </Link>
+          <Link
+            href="/admin/statistikk/memory"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">April</span>
+          </Link>
+          <Link
+            href="/admin/statistikk/memory"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">Mai</span>
+          </Link>
+          <Link
+            href="/admin/statistikk/memory"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm hover:bg-gray-50"
+          >
+            <span className="font-medium text-gray-900">Juni</span>
+          </Link>
         </nav>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Bruker på plattformen" value={stats.totalUsers} />
-        <StatsCard title="Aktive brukere" value={stats.activeUsers} />
+      <div className="flex flex-wrap gap-4">
+        <StatsCard
+          title="Brukere på plattformen"
+          value={stats.totalUsers}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
+        <StatsCard
+          title="Aktive brukere"
+          value={stats.activeUsers}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
         <StatsCard
           title="Aktivitet"
           graph={dailyActivity}
           dates={daysInMonth}
-          className="col-span-2"
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
-        <StatsCard title="Total spill" value={stats.totalGames} />
         <StatsCard
-          title="Gjennomsnittlig poengsum"
-          value={stats.averageScore}
+          title="Total spill"
+          value={stats.totalGames}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
-        <StatsCard title="Spill siste 24t" value={stats.gamesLastDay} />
-        <StatsCard title="Spill siste 7 dager" value={stats.gamesLastWeek} />
+        <StatsCard
+          title="Spill siste 24t"
+          value={stats.gamesLastDay}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
+        <StatsCard
+          title="Spill siste 7 dager"
+          value={stats.gamesLastWeek}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
         <StatsCard
           title="Gjennomsnittlig spill per bruker"
           value={stats.avgGamesPerUser}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
         <StatsCard
           title="Gjennomsnittlig spilletid"
           value={stats.averageSessionLength}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
         <StatsCard
-          title="Samtidige spillere (topp)"
-          value={stats.peakConcurrentPlayers}
+          title="Spillere som spiller begge spill"
+          value={combinedStats[0]?.crossGamePlayers ?? 0}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
         <StatsCard
-          title="Returnerende spillere"
-          value={stats.returningPlayers}
+          title="Mest aktive dag"
+          value={combinedStats[0]?.mostActiveDay ?? "N/A"}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
-        <StatsCard title="Konverteringsrate" value={stats.conversionRate} />
+        <StatsCard
+          title="Vekst fra forrige uke"
+          value={`${combinedStats[0]?.weeklyGrowth ?? 0}%`}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
+        <StatsCard
+          title="Spill per økt"
+          value={combinedStats[0]?.avgGamesPerSession ?? 0}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
+        <StatsCard
+          title="Mest aktive time"
+          value={`${combinedStats[0]?.peakHour ?? 0}:00`}
+          className="h-32 w-full sm:w-5/12 lg:w-[23%]"
+        />
       </div>
     </div>
   );
