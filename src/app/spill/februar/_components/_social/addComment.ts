@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "~/server/db";
 import { socialComments } from "~/server/db/schema";
 

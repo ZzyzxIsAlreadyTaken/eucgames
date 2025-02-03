@@ -8,7 +8,6 @@ import {
   pgTableCreator,
   timestamp,
   varchar,
-  serial,
   text,
   boolean,
 } from "drizzle-orm/pg-core";
@@ -138,4 +137,13 @@ export const socialComments = createTable("social_comments", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
     () => new Date(),
   ),
+});
+
+export const socialCommentLikes = createTable("social_comment_likes", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  commentId: integer("comment_id").notNull(),
+  userId: text("user_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });

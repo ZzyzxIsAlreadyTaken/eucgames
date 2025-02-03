@@ -5,15 +5,19 @@ import { useUser } from "@clerk/nextjs";
 import { type SocialComment } from "./types";
 import { getLatestComments } from "./getLatestComments";
 import { addComment } from "./addComment";
+import { toggleLike } from "./likeComment";
 
 const FebruarySocial: React.FC = () => {
   const [comments, setComments] = useState<SocialComment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
+  const [likingInProgress, setLikingInProgress] = useState<Set<number>>(
+    new Set(),
+  );
   const { user } = useUser();
 
   const fetchComments = async () => {
     try {
-      const latestComments = await getLatestComments();
+      const latestComments = await getLatestComments(user?.id);
       setComments(latestComments);
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -22,7 +26,7 @@ const FebruarySocial: React.FC = () => {
 
   useEffect(() => {
     void fetchComments();
-  }, []);
+  }, [user?.id]);
 
   const handleAddComment = async () => {
     if (user && newComment.trim()) {
@@ -42,6 +46,36 @@ const FebruarySocial: React.FC = () => {
     }
   };
 
+  const handleLike = async (commentId: number, currentlyLiked: boolean) => {
+    if (!user || likingInProgress.has(commentId)) return;
+
+    try {
+      setLikingInProgress((prev) => new Set([...prev, commentId]));
+      const { liked } = await toggleLike(commentId, user.id);
+
+      // Update the comment's likes count and liked status in the local state
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === commentId
+            ? {
+                ...comment,
+                likes: comment.likes + (liked ? 1 : -1),
+                hasLiked: liked,
+              }
+            : comment,
+        ),
+      );
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    } finally {
+      setLikingInProgress((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(commentId);
+        return newSet;
+      });
+    }
+  };
+
   return (
     <div className="comments-section mx-5 mx-auto mt-4 rounded-lg bg-white/10 p-4 shadow-md sm:min-w-[800px]">
       <h3 className="mb-4 text-xl font-bold text-white">Siste kommentarer</h3>
@@ -58,8 +92,24 @@ const FebruarySocial: React.FC = () => {
             {comment.isEdited && (
               <small className="text-xs text-gray-500">(Redigert)</small>
             )}
-            <div className="mt-2 text-sm text-gray-400">
-              <span>👍 {comment.likes}</span>
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-400">
+              <button
+                onClick={() => void handleLike(comment.id, comment.hasLiked)}
+                disabled={likingInProgress.has(comment.id) || !user}
+                className={`flex items-center gap-1 rounded px-2 py-1 transition ${
+                  comment.hasLiked
+                    ? "text-purple-400 hover:text-purple-300"
+                    : "hover:text-white"
+                } ${
+                  likingInProgress.has(comment.id) ? "animate-pulse" : ""
+                } disabled:opacity-50`}
+                title={user ? undefined : "Logg inn for å like"}
+              >
+                <span className="text-lg">
+                  {comment.hasLiked ? "❤️" : "🤍"}
+                </span>
+                <span>{comment.likes}</span>
+              </button>
             </div>
           </li>
         ))}

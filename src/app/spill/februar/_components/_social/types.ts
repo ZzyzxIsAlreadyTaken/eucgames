@@ -5,6 +5,7 @@ export interface SocialComment {
   game: string;
   comment: string;
   likes: number;
+  hasLiked: boolean;
   parentCommentId: number | null;
   isEdited: boolean;
   createdAt: Date;
