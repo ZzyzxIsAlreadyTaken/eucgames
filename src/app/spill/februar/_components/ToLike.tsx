@@ -121,6 +121,7 @@ const GameCompleteModal = ({
   isSaving,
   isTimeOut,
   difficulty,
+  isLoggedIn,
 }: {
   attempts: number;
   time: number;
@@ -128,6 +129,7 @@ const GameCompleteModal = ({
   isSaving: boolean;
   isTimeOut: boolean;
   difficulty: Difficulty;
+  isLoggedIn: boolean;
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -144,6 +146,11 @@ const GameCompleteModal = ({
             ? `Du må kjappe deg litt... Tidbegrensingen på ${difficulty} er ${formatTime(DIFFICULTY_SETTINGS[difficulty].maxTime)}!`
             : `Du fullførte spillet med ${attempts} forsøk på ${formatTime(time)}!`}
         </p>
+        {!isLoggedIn && !isTimeOut && (
+          <p className="mb-4 text-sm text-orange-600">
+            Logg inn for å lagre poengsummen din! 🏆
+          </p>
+        )}
         {isSaving ? (
           <p className="mb-4 text-gray-600">Lagrer resultat...</p>
         ) : (
@@ -419,9 +426,32 @@ export default function ToLike({
         <div className="grid grid-cols-3 gap-8">
           {/* Difficulty Selection */}
           <div className="flex flex-col items-center gap-2">
-            <label className="text-lg font-medium text-white">
-              Vanskelighetsgrad
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="text-lg font-medium text-white">
+                Vanskelighetsgrad
+              </label>
+              <div className="group relative">
+                <svg
+                  className="h-5 w-5 cursor-help text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 transform rounded-lg bg-black/80 px-3 py-2 text-sm text-white group-hover:block">
+                  Velg vanskelighetsgrad basert på antall par og tid.
+                  <br />
+                  Highscore blir regnet ut basert på antall forsøk og tid, ved
+                  likt antall forsøk på tid.
+                </div>
+              </div>
+            </div>
             <select
               value={difficulty}
               onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
@@ -448,7 +478,30 @@ export default function ToLike({
 
           {/* Game Type Selection */}
           <div className="flex flex-col items-center gap-2">
-            <label className="text-lg font-medium text-white">Spilltype</label>
+            <div className="flex items-center gap-2">
+              <label className="text-lg font-medium text-white">
+                Spilltype
+              </label>
+              <div className="group relative">
+                <svg
+                  className="h-5 w-5 cursor-help text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 transform rounded-lg bg-black/80 px-3 py-2 text-sm text-white group-hover:block">
+                  Velg mellom forskjellige spilltyper. Spilltypene har ingen
+                  påvirkning på highscore, kunn for flavor.
+                </div>
+              </div>
+            </div>
             <select
               value={gameMode}
               onChange={(e) => setGameMode(e.target.value as GameMode)}
@@ -504,6 +557,7 @@ export default function ToLike({
             isSaving={isSaving}
             isTimeOut={isTimeOut}
             difficulty={difficulty}
+            isLoggedIn={!!user?.id}
           />
         </AnimatePresence>
       )}
