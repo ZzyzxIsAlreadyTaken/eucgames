@@ -122,3 +122,20 @@ export const RPSgames = createTable("rock_paper_scissors_games", {
   completed: boolean("completed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const socialComments = createTable("social_comments", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  userId: text("userId").notNull(),
+  username: text("username").notNull(),
+  game: text("game").notNull(),
+  comment: text("comment").notNull(),
+  likes: integer("likes").default(0).notNull(),
+  parentCommentId: integer("parent_comment_id"), // For reply/thread functionality
+  isEdited: boolean("is_edited").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});

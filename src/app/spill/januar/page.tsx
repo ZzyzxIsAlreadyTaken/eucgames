@@ -2,6 +2,7 @@ import Link from "next/link";
 import SnakeGame from "./_components/snakeGame";
 import TopScore from "./_components/TopScore";
 import SnakeSocial from "./_components/_social/snakeSocial";
+import { SignedIn } from "@clerk/nextjs";
 
 export default function JanuaryGames() {
   const now = new Date();
@@ -43,7 +44,9 @@ export default function JanuaryGames() {
           </Link>
         </div>
       </div>
-      <SnakeSocial />
+      <SignedIn>
+        <SnakeSocial />
+      </SignedIn>
     </main>
   );
 }
