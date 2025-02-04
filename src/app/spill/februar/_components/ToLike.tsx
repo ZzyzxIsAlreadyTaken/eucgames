@@ -289,6 +289,7 @@ export default function ToLike({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isTimeOut, setIsTimeOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const username =
     user?.username ??
@@ -298,17 +299,22 @@ export default function ToLike({
 
   useEffect(() => {
     const loadCards = async () => {
-      const initialCards = await generateCards(gameMode, difficulty);
-      setCards(initialCards);
-      setFlipped(new Array(initialCards.length).fill(false));
-      setAttempts(0);
-      setMatchedPairs(0);
-      setGameComplete(false);
-      setTime(0);
-      setTimerActive(false);
-      setIsTimeOut(false);
-      if (timerInterval) {
-        clearInterval(timerInterval);
+      setIsLoading(true);
+      try {
+        const initialCards = await generateCards(gameMode, difficulty);
+        setCards(initialCards);
+        setFlipped(new Array(initialCards.length).fill(false));
+        setAttempts(0);
+        setMatchedPairs(0);
+        setGameComplete(false);
+        setTime(0);
+        setTimerActive(false);
+        setIsTimeOut(false);
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -562,27 +568,33 @@ export default function ToLike({
         </AnimatePresence>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${DIFFICULTY_SETTINGS[difficulty].gridColumns}, 1fr)`,
-          gap: "10px",
-          width: "100%",
-          maxWidth: "800px",
-        }}
-      >
-        {cards.map((card, index) => (
-          <Card
-            key={index}
-            index={index}
-            card={card}
-            flipped={flipped[index] ?? false}
-            gameMode={gameMode}
-            onClick={() => handleCardClick(index)}
-            aspectRatio={DIFFICULTY_SETTINGS[difficulty].aspectRatio}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex h-96 items-center justify-center">
+          <div className="h-16 w-16 animate-spin rounded-full border-4 border-purple-500 border-t-transparent"></div>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${DIFFICULTY_SETTINGS[difficulty].gridColumns}, 1fr)`,
+            gap: "10px",
+            width: "100%",
+            maxWidth: "800px",
+          }}
+        >
+          {cards.map((card, index) => (
+            <Card
+              key={index}
+              index={index}
+              card={card}
+              flipped={flipped[index] ?? false}
+              gameMode={gameMode}
+              onClick={() => handleCardClick(index)}
+              aspectRatio={DIFFICULTY_SETTINGS[difficulty].aspectRatio}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
