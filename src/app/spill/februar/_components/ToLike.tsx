@@ -29,25 +29,25 @@ const DIFFICULTY_SETTINGS: Record<Difficulty, GameSettings> = {
     pairs: 6,
     gridColumns: 4,
     aspectRatio: "4/3",
-    maxTime: 45, // 0.75 minutes
+    maxTime: 30, // 0.5 minutes
   },
   normal: {
     pairs: 10,
     gridColumns: 5,
     aspectRatio: "4/5",
-    maxTime: 120, // 2 minutes
+    maxTime: 60, // 1 minute
   },
   hard: {
     pairs: 12,
     gridColumns: 6,
     aspectRatio: "6/6",
-    maxTime: 150, // 2.5 minutes
+    maxTime: 75, // 1.25 minutes
   },
   insane: {
     pairs: 18,
     gridColumns: 6,
     aspectRatio: "6/6",
-    maxTime: 180, // 3 minutes
+    maxTime: 150, // 2.5 minutes
   },
 };
 

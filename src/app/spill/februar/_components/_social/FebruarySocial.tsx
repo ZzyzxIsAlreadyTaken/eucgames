@@ -20,7 +20,10 @@ const FebruarySocial: React.FC = () => {
       const latestComments = await getLatestComments(user?.id);
       setComments(latestComments);
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      console.error(
+        "Error fetching comments:",
+        error instanceof Error ? error.message : String(error),
+      );
     }
   };
 
@@ -41,7 +44,10 @@ const FebruarySocial: React.FC = () => {
         setNewComment("");
         void fetchComments();
       } catch (error) {
-        console.error("Error adding comment:", error);
+        console.error(
+          "Error adding comment:",
+          error instanceof Error ? error.message : String(error),
+        );
       }
     }
   };
@@ -53,7 +59,6 @@ const FebruarySocial: React.FC = () => {
       setLikingInProgress((prev) => new Set([...prev, commentId]));
       const { liked } = await toggleLike(commentId, user.id);
 
-      // Update the comment's likes count and liked status in the local state
       setComments((prevComments) =>
         prevComments.map((comment) =>
           comment.id === commentId
@@ -66,7 +71,10 @@ const FebruarySocial: React.FC = () => {
         ),
       );
     } catch (error) {
-      console.error("Error toggling like:", error);
+      console.error(
+        "Error toggling like:",
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setLikingInProgress((prev) => {
         const newSet = new Set(prev);

@@ -6,14 +6,17 @@ import type { Difficulty } from "../_components/ToLike";
 import { getHighScores } from "../_components/getHighScores";
 import { addMockData } from "../_components/mockData";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface Score {
   id: number;
+  userId: string;
   username: string;
   tries: number;
   time: number;
   createdAt: Date;
   gameMode: string;
+  imageUrl: string | null;
 }
 
 interface HighScoresContentProps {
@@ -89,10 +92,29 @@ export default function HighScoresContent({
                 >
                   <div className="flex gap-4">
                     <span className="w-6 text-gray-400">{index + 1}.</span>
-                    <div>
-                      <span>{score.username}</span>
-                      <div className="text-xs text-gray-400">
-                        {date} • {score.gameMode}
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-full">
+                        {score.imageUrl ? (
+                          <Image
+                            src={score.imageUrl}
+                            alt={score.username}
+                            width={32}
+                            height={32}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-purple-500">
+                            <span className="text-sm text-white">
+                              {score.username.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <span>{score.username}</span>
+                        <div className="text-xs text-gray-400">
+                          {date} • {score.gameMode}
+                        </div>
                       </div>
                     </div>
                   </div>
