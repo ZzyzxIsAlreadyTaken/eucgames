@@ -168,6 +168,44 @@ async function AnalyticsPage() {
           ) combined
         ) sessions
       )`,
+    avgSessionLength: sql<number>`(
+        SELECT ROUND(AVG(session_length) / 60, 2)
+        FROM (
+          SELECT 
+            "userId",
+            SUM(EXTRACT(EPOCH FROM (session_end - session_start))) AS session_length
+          FROM (
+            SELECT 
+              "userId",
+              MIN(created_at) AS session_start,
+              MAX(created_at) AS session_end
+            FROM (
+              SELECT 
+                "userId",
+                created_at,
+                SUM(new_session) OVER (PARTITION BY "userId" ORDER BY created_at) AS session_id
+              FROM (
+                SELECT 
+                  "userId",
+                  created_at,
+                  CASE 
+                    WHEN LAG(created_at) OVER (PARTITION BY "userId" ORDER BY created_at) IS NULL 
+                    OR EXTRACT(EPOCH FROM (created_at - LAG(created_at) OVER (PARTITION BY "userId" ORDER BY created_at))) / 60 >= 20 
+                    THEN 1 
+                    ELSE 0 
+                  END AS new_session
+                FROM (
+                  SELECT "userId", created_at FROM ${scores} WHERE "userId" NOT LIKE 'mock-user-%'
+                  UNION ALL
+                  SELECT "userId", created_at FROM ${scoresMemory} WHERE "userId" NOT LIKE 'mock-user-%'
+                ) combined
+              ) marked_sessions
+            ) grouped_sessions
+            GROUP BY "userId", session_id
+          ) session_data
+          GROUP BY "userId"
+        ) avg_sessions
+      )`,
   }).from(sql`(
       SELECT "userId" FROM ${scores} WHERE game = 'snake' AND "userId" NOT LIKE 'mock-user-%'
       UNION
@@ -222,7 +260,13 @@ async function AnalyticsPage() {
     gamesLastDay: combinedStats[0]?.gamesLastDay ?? 0,
     gamesLastWeek: combinedStats[0]?.gamesLastWeek ?? 0,
     avgGamesPerUser: combinedStats[0]?.avgGamesPerUser ?? 0,
-    averageSessionLength: "2m 30s*", // TODO: Implement session tracking
+    averageSessionLength: combinedStats[0]?.avgSessionLength ?? 0,
+  };
+
+  const formatMinutes = (minutes: number) => {
+    const h = Math.floor(minutes / 60);
+    const m = Math.floor(minutes % 60);
+    return `${h}h ${m}m`;
   };
 
   return (
@@ -287,7 +331,7 @@ async function AnalyticsPage() {
           className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
         <StatsCard
-          title="Total spill"
+          title="Totalt antall spill"
           value={stats.totalGames}
           className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
@@ -308,7 +352,7 @@ async function AnalyticsPage() {
         />
         <StatsCard
           title="Gjennomsnittlig spilletid"
-          value={stats.averageSessionLength}
+          value={formatMinutes(stats.averageSessionLength)}
           className="h-32 w-full sm:w-5/12 lg:w-[23%]"
         />
         <StatsCard
