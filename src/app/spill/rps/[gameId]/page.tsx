@@ -8,20 +8,14 @@ import { GameBoard } from "../_components/GameBoard";
 export default async function GamePage({
   params,
 }: {
-  params: { gameId: string | string[] };
+  params: { gameId: string };
 }) {
-  // Use optional chaining to handle undefined params
-  if (!params?.gameId) {
+  // Optional: If you need to check for undefined (for extra safety)
+  if (!params.gameId) {
     redirect("/spill/rps");
   }
 
-  const gameId =
-    typeof params.gameId === "string" ? params.gameId : params.gameId[0];
-
-  if (!gameId) {
-    redirect("/spill/rps");
-  }
-
+  // Now you can use params.gameId as a string.
   const { userId } = await auth();
   if (!userId) {
     redirect("/sign-in");
@@ -30,7 +24,7 @@ export default async function GamePage({
   const [game] = await db
     .select()
     .from(rpsGames)
-    .where(eq(rpsGames.gameId, gameId));
+    .where(eq(rpsGames.gameId, params.gameId));
 
   if (!game) {
     redirect("/spill/rps");
