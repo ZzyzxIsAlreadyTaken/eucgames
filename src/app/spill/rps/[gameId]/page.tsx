@@ -5,18 +5,16 @@ import { rpsGames } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
-export default async function GamePage({
-  params,
-  searchParams: _searchParams,
-}: {
+export default async function GamePage(props: {
   params: { gameId: string };
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  if (!params?.gameId) {
+  const { params } = await Promise.resolve(props);
+  if (!params.gameId) {
     redirect("/spill/rps");
   }
 
-  const gameId = params.gameId; // already guaranteed to be a string
+  const gameId = params.gameId;
 
   const { userId } = await auth();
   if (!userId) {
@@ -34,6 +32,7 @@ export default async function GamePage({
 
   const isCreator = game.creatorId === userId;
   const isJoiner = game.joinerId === userId;
+
   if (!isCreator && !isJoiner) {
     redirect("/spill/rps");
   }
