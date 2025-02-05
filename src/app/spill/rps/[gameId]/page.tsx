@@ -4,21 +4,29 @@ import { db } from "~/server/db";
 import { rpsGames } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
+import type { GetServerSidePropsContext } from "next";
 
-export default async function GamePage({
-  params,
-}: {
-  params: { gameId: string };
-}) {
+export default async function GamePage({ params }: GetServerSidePropsContext) {
   const { userId } = await auth();
   if (!userId) {
     redirect("/sign-in");
   }
 
+  if (!params) {
+    redirect("/spill/rps");
+  }
+
+  const gameId =
+    typeof params.gameId === "string" ? params.gameId : params.gameId?.[0];
+
+  if (!gameId) {
+    redirect("/spill/rps");
+  }
+
   const [game] = await db
     .select()
     .from(rpsGames)
-    .where(eq(rpsGames.gameId, params.gameId));
+    .where(eq(rpsGames.gameId, gameId));
 
   if (!game) {
     redirect("/spill/rps");
