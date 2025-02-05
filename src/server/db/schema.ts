@@ -109,17 +109,37 @@ export const snakeSocial = createTable("snake_social", {
 /**
  * Rock Paper Scissors games table
  * Used by: Rock Paper Scissors Game
- * Stores game results including player choices, winner, and completion status
+ * Stores game state and player information
  */
-export const RPSgames = createTable("rock_paper_scissors_games", {
+export const rpsGames = createTable("rps_games", {
   id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-  player1Id: text("player1_id").notNull(),
-  player2Id: text("player2_id"), // Null until a second player joins
-  player1Choice: text("player1_choice").notNull(), // 'rock', 'paper', 'scissors'
-  player2Choice: text("player2_choice"), // Null until player 2 picks
-  winnerId: text("winner_id"), // Null until match is decided
-  completed: boolean("completed").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
+  gameId: varchar("gameId", { length: 36 }).notNull().unique(), // UUID for external reference
+  creatorId: text("creatorId").notNull(),
+  joinerId: text("joinerId"),
+  status: varchar("status", { length: 20 }).notNull().default("WAITING"), // 'WAITING', 'IN_PROGRESS', 'COMPLETED'
+  winnerId: text("winnerId"),
+  createdAt: timestamp("createdAt", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+/**
+ * Rock Paper Scissors moves table
+ * Used by: Rock Paper Scissors Game
+ * Stores individual moves for each game
+ */
+export const rpsMoves = createTable("rps_moves", {
+  id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+  gameId: varchar("gameId", { length: 36 }).notNull(),
+  playerId: text("playerId").notNull(),
+  move: varchar("move", { length: 10 }).notNull(), // 'ROCK', 'PAPER', 'SCISSORS'
+  createdAt: timestamp("createdAt", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const socialComments = createTable("social_comments", {
