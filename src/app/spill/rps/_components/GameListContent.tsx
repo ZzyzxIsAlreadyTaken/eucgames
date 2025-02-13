@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { JoinButton } from "./JoinButton";
 import { getGames } from "../_actions/getGames";
+import { Button } from "./Button";
+import { useRouter } from "next/navigation";
 
 interface Game {
   id: number;
@@ -13,6 +15,8 @@ interface Game {
   winnerId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  hasPlayerMoved: boolean;
+  moveCount: number;
 }
 
 interface GameListContentProps {
@@ -21,6 +25,7 @@ interface GameListContentProps {
 
 export function GameListContent({ initialGames }: GameListContentProps) {
   const [games, setGames] = useState<Game[]>(initialGames);
+  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -70,8 +75,46 @@ export function GameListContent({ initialGames }: GameListContentProps) {
             <p className="text-sm text-gray-400">
               Created {new Date(game.createdAt).toLocaleString()}
             </p>
+            {(game.status === "IN_PROGRESS" || game.status === "COMPLETED") && (
+              <p
+                className={`mt-1 text-sm font-medium ${
+                  game.status === "COMPLETED"
+                    ? game.winnerId === null
+                      ? "text-yellow-300" // Draw
+                      : "text-green-300" // Game complete
+                    : "text-purple-300" // In progress
+                }`}
+              >
+                {game.status === "COMPLETED"
+                  ? game.winnerId === null
+                    ? "Game ended in a draw!"
+                    : "Game complete - View result!"
+                  : game.hasPlayerMoved
+                    ? "Waiting for opponent's move"
+                    : "Your turn to move!"}
+              </p>
+            )}
           </div>
-          <JoinButton gameId={game.gameId} />
+          {game.status === "WAITING" ? (
+            <JoinButton gameId={game.gameId} />
+          ) : (
+            <Button
+              onClick={() => router.push(`/spill/rps/${game.gameId}`)}
+              variant={
+                game.status === "COMPLETED"
+                  ? "default"
+                  : game.hasPlayerMoved
+                    ? "secondary"
+                    : "default"
+              }
+            >
+              {game.status === "COMPLETED"
+                ? "View Result"
+                : game.hasPlayerMoved
+                  ? "View Game"
+                  : "Make Your Move"}
+            </Button>
+          )}
         </div>
       ))}
     </div>

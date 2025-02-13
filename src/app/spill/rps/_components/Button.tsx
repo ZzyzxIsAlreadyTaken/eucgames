@@ -19,10 +19,9 @@ export function Button({
       className={cn(
         "rounded-lg font-medium transition-colors",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        variant === "default" &&
-          "bg-purple-700/90 text-white hover:bg-white/20",
+        variant === "default" && "bg-purple-700 text-white hover:bg-purple-600",
         variant === "secondary" &&
-          "bg-purple-600/90 text-white hover:bg-white/10",
+          "bg-purple-600/50 text-white hover:bg-purple-500/50",
         size === "default" && "px-4 py-2",
         size === "lg" && "px-6 py-3",
         className,

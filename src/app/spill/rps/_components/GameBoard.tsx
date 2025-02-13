@@ -16,26 +16,45 @@ interface Game {
   winnerId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  moves?: {
+    playerId: string;
+    move: Move;
+  }[];
 }
 
 interface GameBoardProps {
   game: Game;
   userId: string;
+  creatorName: string;
+  joinerName: string | null;
 }
 
-export function GameBoard({ game, userId }: GameBoardProps) {
+const MOVE_EMOJIS: Record<Move, string> = {
+  ROCK: "🪨",
+  PAPER: "📄",
+  SCISSORS: "✂️",
+};
+
+export function GameBoard({
+  game,
+  userId,
+  creatorName,
+  joinerName,
+}: GameBoardProps) {
   const [selectedMove, setSelectedMove] = useState<Move | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const isCreator = game.creatorId === userId;
-  const opponent = isCreator ? "Opponent" : "Creator";
+  const playerName = isCreator ? creatorName : joinerName;
+  const opponentName = isCreator ? joinerName : creatorName;
 
   const handleMove = async (move: Move) => {
     setIsSubmitting(true);
     try {
       const result = await makeMove(game.gameId, move);
       if (result.success) {
+        setSelectedMove(move);
         router.refresh();
       }
     } catch (error) {
@@ -45,17 +64,38 @@ export function GameBoard({ game, userId }: GameBoardProps) {
     }
   };
 
-  if (game.status === "COMPLETED") {
+  if (game.status === "COMPLETED" && game.moves) {
     const hasWon = game.winnerId === userId;
+    const playerMove = game.moves.find((m) => m.playerId === userId)?.move;
+    const opponentMove = game.moves.find((m) => m.playerId !== userId)?.move;
+
     return (
       <div className="text-center">
-        <h2 className="mb-4 text-2xl font-bold">
+        <h2 className="mb-6 text-2xl font-bold">
           {game.winnerId
             ? hasWon
               ? "You Won! 🎉"
               : "You Lost 😢"
             : "It's a Draw! 🤝"}
         </h2>
+
+        <div className="mb-8 grid grid-cols-2 gap-8">
+          <div className="space-y-2">
+            <p className="font-medium text-purple-200">You ({playerName})</p>
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-lg bg-white/10 text-4xl">
+              {playerMove && MOVE_EMOJIS[playerMove]}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="font-medium text-purple-200">
+              {opponentName ?? "Opponent"}
+            </p>
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-lg bg-white/10 text-4xl">
+              {opponentMove && MOVE_EMOJIS[opponentMove]}
+            </div>
+          </div>
+        </div>
+
         <Button onClick={() => router.push("/spill/rps")}>Back to Games</Button>
       </div>
     );
@@ -78,7 +118,9 @@ export function GameBoard({ game, userId }: GameBoardProps) {
     <div className="space-y-8">
       <div className="text-center">
         <h2 className="mb-2 text-2xl font-bold">Make Your Move</h2>
-        <p className="text-gray-400">Playing against {opponent}</p>
+        <p className="text-gray-400">
+          Playing against {opponentName ?? "Opponent"}
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -90,7 +132,7 @@ export function GameBoard({ game, userId }: GameBoardProps) {
             variant={selectedMove === move ? "default" : "secondary"}
             className="aspect-square text-2xl"
           >
-            {move === "ROCK" ? "🪨" : move === "PAPER" ? "📄" : "✂️"}
+            {MOVE_EMOJIS[move]}
           </Button>
         ))}
       </div>
