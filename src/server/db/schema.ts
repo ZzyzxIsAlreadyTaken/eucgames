@@ -10,6 +10,7 @@ import {
   varchar,
   text,
   boolean,
+  serial,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -166,4 +167,11 @@ export const socialCommentLikes = createTable("social_comment_likes", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+});
+
+export const rpsGameResults = createTable("rps_game_results", {
+  id: serial("id").primaryKey(),
+  gameId: text("game_id").notNull(),
+  userId: text("user_id").notNull(),
+  seenAt: timestamp("seen_at").notNull().defaultNow(),
 });

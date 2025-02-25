@@ -1,5 +1,6 @@
 import { getGames } from "../_actions/getGames";
 import { GameListContent } from "./GameListContent";
+import { auth } from "@clerk/nextjs/server";
 
 interface Game {
   id: number;
@@ -14,14 +15,22 @@ interface Game {
 
 export async function GameList() {
   const result = await getGames();
-
-  if (!result.success) {
+  const { userId } = await auth();
+  if (!userId) {
     return (
       <div className="text-center text-red-500">
-        Failed to load games. Please try again later.
+        Du må være logget inn for å se spill.
       </div>
     );
   }
 
-  return <GameListContent initialGames={result.games ?? []} />;
+  if (!result.success) {
+    return (
+      <div className="text-center text-red-500">
+        Fikk ikke lastet spill. Prøv igjen senere.
+      </div>
+    );
+  }
+
+  return <GameListContent initialGames={result.games ?? []} userId={userId} />;
 }

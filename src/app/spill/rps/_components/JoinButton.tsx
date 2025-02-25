@@ -7,9 +7,10 @@ import { Button } from "./Button";
 
 interface JoinButtonProps {
   gameId: string;
+  className?: string;
 }
 
-export function JoinButton({ gameId }: JoinButtonProps) {
+export function JoinButton({ gameId, className }: JoinButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -23,8 +24,13 @@ export function JoinButton({ gameId }: JoinButtonProps) {
   };
 
   return (
-    <Button onClick={handleJoin} disabled={isPending} variant="secondary">
-      {isPending ? "Joining..." : "Join Game"}
+    <Button
+      onClick={handleJoin}
+      disabled={isPending}
+      variant="secondary"
+      className={className}
+    >
+      {isPending ? "Venter..." : "Bli med i spill"}
     </Button>
   );
 }

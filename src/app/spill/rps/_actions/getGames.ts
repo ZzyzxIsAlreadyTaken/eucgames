@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "~/server/db";
-import { rpsGames, rpsMoves } from "~/server/db/schema";
+import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and, or, not, inArray } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
@@ -14,6 +14,12 @@ export async function getGames() {
   try {
     // First get all moves to check game states
     const allMoves = await db.select().from(rpsMoves);
+
+    // Get all seen results for this user
+    const seenResults = await db
+      .select()
+      .from(rpsGameResults)
+      .where(eq(rpsGameResults.userId, userId));
 
     // Get all relevant games
     const games = await db
@@ -41,17 +47,9 @@ export async function getGames() {
     // Filter and enhance games with move information
     const gamesWithMoveInfo = games
       .filter((game) => {
-        // For WAITING games, always show them
         if (game.status === "WAITING") return true;
-
-        // For IN_PROGRESS games, check if it's player's turn or game is complete
         const gameMoves = allMoves.filter((m) => m.gameId === game.gameId);
         const playerMove = gameMoves.find((m) => m.playerId === userId);
-
-        // Show game if:
-        // 1. It's completed (to see result)
-        // 2. Player hasn't moved yet
-        // 3. Both players have moved
         return (
           game.status === "COMPLETED" || !playerMove || gameMoves.length === 2
         );
@@ -59,10 +57,13 @@ export async function getGames() {
       .map((game) => {
         const gameMoves = allMoves.filter((m) => m.gameId === game.gameId);
         const playerMove = gameMoves.find((m) => m.playerId === userId);
+        const resultSeen = seenResults.some((r) => r.gameId === game.gameId);
+
         return {
           ...game,
           hasPlayerMoved: !!playerMove,
           moveCount: gameMoves.length,
+          resultSeen,
         };
       });
 
