@@ -15,10 +15,13 @@ export default async function GamePage({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
+  // Await the params object before using it
+  const gameId = params.gameId;
+
   const [game] = await db
     .select()
     .from(rpsGames)
-    .where(eq(rpsGames.gameId, params.gameId));
+    .where(eq(rpsGames.gameId, gameId));
 
   if (!game || (game.creatorId !== userId && game.joinerId !== userId)) {
     redirect("/spill/rps");
@@ -48,10 +51,7 @@ export default async function GamePage({
   // Get moves if game is completed
   let moves;
   if (game.status === "COMPLETED") {
-    moves = await db
-      .select()
-      .from(rpsMoves)
-      .where(eq(rpsMoves.gameId, params.gameId));
+    moves = await db.select().from(rpsMoves).where(eq(rpsMoves.gameId, gameId));
 
     // Transform the moves to match the expected type
     moves = moves.map((move) => ({
@@ -68,12 +68,26 @@ export default async function GamePage({
       .from(rpsGameResults)
       .where(
         and(
-          eq(rpsGameResults.gameId, params.gameId),
+          eq(rpsGameResults.gameId, gameId),
           eq(rpsGameResults.userId, userId),
         ),
       );
 
     resultSeen = !!seenRecord;
+  }
+
+  // After fetching the game, also fetch any existing moves
+  let userMove = undefined;
+  if (game.status === "IN_PROGRESS") {
+    const moves = await db
+      .select()
+      .from(rpsMoves)
+      .where(eq(rpsMoves.gameId, gameId));
+    userMove = moves.find((m) => m.playerId === userId)?.move?.toUpperCase() as
+      | "ROCK"
+      | "PAPER"
+      | "SCISSORS"
+      | undefined;
   }
 
   const gameWithMoves = {
@@ -85,7 +99,7 @@ export default async function GamePage({
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
         <h1 className="mt-10 text-2xl font-semibold tracking-tight text-white">
-          Stein Saks Papir - {game.gameId}
+          Saks, Papir, Stein - {game.gameId}
         </h1>
         <div className="mx-auto max-w-2xl">
           <GameBoard
@@ -94,6 +108,7 @@ export default async function GamePage({
             creatorName={creator?.firstName ?? creator?.username ?? "Unknown"}
             joinerName={joiner?.firstName ?? joiner?.username ?? null}
             resultSeen={resultSeen}
+            userMove={userMove}
           />
         </div>
       </div>

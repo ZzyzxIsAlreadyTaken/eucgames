@@ -1,4 +1,5 @@
 import { getStats } from "../_actions/getStats";
+import Link from "next/link";
 
 interface PlayerStats {
   userId: string;
@@ -52,17 +53,19 @@ export async function StatsContent() {
     <div className="space-y-8">
       {/* Overall Player Statistics */}
       <div className="rounded-lg bg-white/5 p-6">
-        <h2 className="mb-4 text-2xl font-semibold">Spillerstatistikk</h2>
+        <h2 className="mb-4 text-2xl font-semibold text-white">
+          Spillerstatistikk
+        </h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10 text-left">
-                <th className="pb-2">Spiller</th>
-                <th className="pb-2">Kamper</th>
-                <th className="pb-2">Seiere</th>
-                <th className="pb-2">Tap</th>
-                <th className="pb-2">Uavgjort</th>
-                <th className="pb-2">Vinn %</th>
+                <th className="pb-2 text-white">Spiller</th>
+                <th className="pb-2 text-white">Kamper</th>
+                <th className="pb-2 text-white">Seiere</th>
+                <th className="pb-2 text-white">Tap</th>
+                <th className="pb-2 text-white">Uavgjort</th>
+                <th className="pb-2 text-white">Vinn %</th>
               </tr>
             </thead>
             <tbody>
@@ -77,50 +80,19 @@ export async function StatsContent() {
                     key={player.userId}
                     className="border-b border-white/5 text-sm"
                   >
-                    <td className="py-2">{player.username}</td>
-                    <td className="py-2">{player.totalGames}</td>
+                    <td className="py-2 text-white">
+                      <Link
+                        href={`/spill/mars/stats/player/${player.userId}`}
+                        className="hover:text-[#CC65FF] hover:underline"
+                      >
+                        {player.username}
+                      </Link>
+                    </td>
+                    <td className="py-2 text-white">{player.totalGames}</td>
                     <td className="py-2 text-green-400">{player.wins}</td>
                     <td className="py-2 text-red-400">{player.losses}</td>
                     <td className="py-2 text-yellow-400">{player.draws}</td>
-                    <td className="py-2">{winPercentage}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Head-to-Head Statistics */}
-      <div className="rounded-lg bg-white/5 p-6">
-        <h2 className="mb-4 text-2xl font-semibold">1v1 Statistikk</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/10 text-left">
-                <th className="pb-2">Spiller 1</th>
-                <th className="pb-2">Spiller 2</th>
-                <th className="pb-2">Spiller 1 Seiere</th>
-                <th className="pb-2">Spiller 2 Seiere</th>
-                <th className="pb-2">Uavgjort</th>
-                <th className="pb-2">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {headToHeadStats.map((stats) => {
-                const totalGames =
-                  stats.player1Wins + stats.player2Wins + stats.draws;
-                return (
-                  <tr
-                    key={`${stats.player1Id}-${stats.player2Id}`}
-                    className="border-b border-white/5 text-sm"
-                  >
-                    <td className="py-2">{stats.player1Name}</td>
-                    <td className="py-2">{stats.player2Name}</td>
-                    <td className="py-2 text-green-400">{stats.player1Wins}</td>
-                    <td className="py-2 text-green-400">{stats.player2Wins}</td>
-                    <td className="py-2 text-yellow-400">{stats.draws}</td>
-                    <td className="py-2">{totalGames}</td>
+                    <td className="py-2 text-[#CC65FF]">{winPercentage}%</td>
                   </tr>
                 );
               })}

@@ -18,7 +18,7 @@ export function JoinButton({ gameId, className }: JoinButtonProps) {
     startTransition(async () => {
       const result = await joinGame(gameId);
       if (result.success) {
-        router.push(`/spill/rps/${gameId}`);
+        router.push(`/spill/mars/${gameId}`);
       }
     });
   };
