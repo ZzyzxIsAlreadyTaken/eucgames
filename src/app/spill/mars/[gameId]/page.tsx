@@ -120,10 +120,14 @@ async function getGameProps(gameId: string) {
   };
 }
 
-// Using a default export with specific type annotation
-export default async function Page(props: { params: { gameId: string } }) {
-  // Extract the gameId with proper typing
-  const gameId = props.params.gameId;
+// Using a default export with Promise params
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ gameId: string }>;
+}) {
+  // Extract the gameId by awaiting the params
+  const gameId = (await params).gameId;
 
   // Call getGameProps with the gameId
   const propsData = (await getGameProps(gameId)) as {
