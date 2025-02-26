@@ -7,13 +7,11 @@ import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
-interface GamePageProps {
-  params: {
-    gameId: string;
-  };
-}
-
-export default async function GamePage({ params }: GamePageProps) {
+export default async function GamePage({
+  params,
+}: {
+  params: { gameId: string };
+}) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
