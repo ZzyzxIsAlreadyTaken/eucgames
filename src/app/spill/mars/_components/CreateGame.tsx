@@ -18,7 +18,7 @@ export function CreateGame() {
       const result = await createGame();
 
       if (result.success && result.gameId) {
-        router.push(`/spill/rps/${result.gameId}`);
+        router.push(`/spill/mars/${result.gameId}`);
       } else {
         setError(result.error ?? "Kunne ikke opprette spill");
       }
