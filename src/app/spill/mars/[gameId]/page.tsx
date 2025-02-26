@@ -7,15 +7,17 @@ import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
-export default async function GamePage({
-  params,
-}: {
+// Define a type that matches what the component actually receives
+type GamePageParams = {
   params: { gameId: string };
-}) {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+};
 
-  // Use the gameId directly without awaiting params
+// Create a wrapper that returns props in a format similar to getServerSideProps
+async function getGameProps(params: { gameId: string }) {
+  const { userId } = await auth();
+  if (!userId)
+    return { redirect: { destination: "/sign-in", permanent: false } };
+
   const gameId = params.gameId;
 
   const [game] = await db
@@ -24,7 +26,7 @@ export default async function GamePage({
     .where(eq(rpsGames.gameId, gameId));
 
   if (!game || (game.creatorId !== userId && game.joinerId !== userId)) {
-    redirect("/spill/mars");
+    return { redirect: { destination: "/spill/mars", permanent: false } };
   }
 
   // Fetch user details concurrently
@@ -95,6 +97,30 @@ export default async function GamePage({
     moves,
   };
 
+  return {
+    props: {
+      game: gameWithMoves,
+      userId,
+      creatorName: creator?.firstName ?? creator?.username ?? "Unknown",
+      joinerName: joiner?.firstName ?? joiner?.username ?? null,
+      resultSeen,
+      userMove,
+    },
+  };
+}
+
+export default async function GamePage({ params }: GamePageParams) {
+  const propsData = await getGameProps(params);
+
+  // Handle redirect if present
+  if ("redirect" in propsData) {
+    redirect(propsData.redirect.destination);
+    return null; // This line won't execute but TypeScript needs it
+  }
+
+  const { game, userId, creatorName, joinerName, resultSeen, userMove } =
+    propsData.props;
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
@@ -103,10 +129,10 @@ export default async function GamePage({
         </h1>
         <div className="mx-auto max-w-2xl">
           <GameBoard
-            game={gameWithMoves}
+            game={game}
             userId={userId}
-            creatorName={creator?.firstName ?? creator?.username ?? "Unknown"}
-            joinerName={joiner?.firstName ?? joiner?.username ?? null}
+            creatorName={creatorName}
+            joinerName={joinerName}
             resultSeen={resultSeen}
             userMove={userMove}
           />
