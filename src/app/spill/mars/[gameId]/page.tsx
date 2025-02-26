@@ -7,18 +7,11 @@ import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
-// Define a type that matches what the component actually receives
-type GamePageParams = {
-  params: { gameId: string };
-};
-
 // Create a wrapper that returns props in a format similar to getServerSideProps
-async function getGameProps(params: { gameId: string }) {
+async function getGameProps(gameId: string) {
   const { userId } = await auth();
   if (!userId)
     return { redirect: { destination: "/sign-in", permanent: false } };
-
-  const gameId = params.gameId;
 
   const [game] = await db
     .select()
@@ -109,13 +102,18 @@ async function getGameProps(params: { gameId: string }) {
   };
 }
 
-export default async function GamePage({ params }: GamePageParams) {
-  const propsData = await getGameProps(params);
+// Using a default export without any type annotations
+export default async function Page(props: any) {
+  // Extract the gameId directly from the props
+  const gameId = props.params.gameId;
+
+  // Call getGameProps with the gameId
+  const propsData = await getGameProps(gameId);
 
   // Handle redirect if present
   if ("redirect" in propsData) {
     redirect(propsData.redirect.destination);
-    return null; // This line won't execute but TypeScript needs it
+    return null;
   }
 
   const { game, userId, creatorName, joinerName, resultSeen, userMove } =
