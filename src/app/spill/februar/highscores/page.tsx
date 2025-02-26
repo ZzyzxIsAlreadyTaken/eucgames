@@ -1,4 +1,4 @@
-import { isAdmin, isBetaTester } from "../_components/getEarlyAccess";
+import { isAdmin, isBetaTester } from "../../../../lib/getEarlyAccess";
 import HighScoresContent from "./HighScoresContent";
 
 export default async function HighScoresPage() {

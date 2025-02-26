@@ -1,6 +1,6 @@
 import FebruaryGamesContent from "./_components/FebruaryGamesContent";
 import FebruarySocial from "./_components/_social/FebruarySocial";
-import { isAdmin, isBetaTester } from "./_components/getEarlyAccess";
+import { isAdmin, isBetaTester } from "../../../lib/getEarlyAccess";
 import { type Metadata } from "next";
 import { SignedIn } from "@clerk/nextjs";
 

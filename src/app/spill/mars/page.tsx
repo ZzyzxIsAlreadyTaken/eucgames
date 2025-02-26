@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { SignedIn } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { isAdmin, isBetaTester } from "../../../lib/getEarlyAccess";
 
 export const metadata: Metadata = {
   title: "EUC Games - Stein Saks Papir",
@@ -14,6 +15,17 @@ export const metadata: Metadata = {
 export default async function RPSPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+
+  // Check if current month is March
+  const currentMonth = new Date().getMonth(); // 0-indexed, so March is 2
+  const isMarchMonth = currentMonth === 2;
+
+  // Only check early access if it's not March
+  if (!isMarchMonth) {
+    // Move the early access check inside the component function
+    const hasEarlyAccess = (await isAdmin()) || (await isBetaTester());
+    if (!hasEarlyAccess) redirect("/spill/");
+  }
 
   return (
     <SignedIn>
