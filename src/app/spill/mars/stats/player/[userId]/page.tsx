@@ -7,14 +7,16 @@ import Link from "next/link";
 export default async function PlayerStatsPage({
   params,
 }: {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }) {
+  const resolvedParams = await params;
+  const userId = resolvedParams.userId;
   const { userId: currentUserId } = await auth();
   if (!currentUserId) redirect("/sign-in");
 
   // Get the player's details
   try {
-    const player = await clerkClient.users.getUser(params.userId);
+    const player = await clerkClient.users.getUser(userId);
     const playerName = player.firstName ?? player.username ?? "Unknown Player";
 
     return (
@@ -29,7 +31,7 @@ export default async function PlayerStatsPage({
 
           <div className="container mx-auto max-w-7xl space-y-8 px-4">
             {" "}
-            <PlayerStatsContent userId={params.userId} />
+            <PlayerStatsContent userId={userId} />
           </div>
           <Link href="/spill/mars/" className="text-white">
             ← Tilbake til spilloversikt
