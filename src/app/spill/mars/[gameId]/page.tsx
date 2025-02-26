@@ -24,7 +24,7 @@ export default async function GamePage({
     .where(eq(rpsGames.gameId, gameId));
 
   if (!game || (game.creatorId !== userId && game.joinerId !== userId)) {
-    redirect("/spill/rps");
+    redirect("/spill/mars");
   }
 
   // Fetch user details concurrently
