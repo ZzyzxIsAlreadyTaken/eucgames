@@ -7,6 +7,24 @@ import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
+// Define the Game type to match what's used in GameBoard
+type Move = "ROCK" | "PAPER" | "SCISSORS";
+
+interface Game {
+  id: number;
+  gameId: string;
+  creatorId: string;
+  joinerId: string | null;
+  status: string;
+  winnerId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  moves?: {
+    playerId: string;
+    move: Move;
+  }[];
+}
+
 // Create a wrapper that returns props in a format similar to getServerSideProps
 async function getGameProps(gameId: string) {
   const { userId } = await auth();
@@ -102,19 +120,22 @@ async function getGameProps(gameId: string) {
   };
 }
 
-// Using a default export without any type annotations
-export default async function Page(props: any) {
-  // Extract the gameId directly from the props
+// Using a default export with specific type annotation
+export default async function Page(props: { params: { gameId: string } }) {
+  // Extract the gameId with proper typing
   const gameId = props.params.gameId;
 
   // Call getGameProps with the gameId
-  const propsData = await getGameProps(gameId);
-
-  // Handle redirect if present
-  if ("redirect" in propsData) {
-    redirect(propsData.redirect.destination);
-    return null;
-  }
+  const propsData = (await getGameProps(gameId)) as {
+    props: {
+      game: Game;
+      userId: string;
+      creatorName: string;
+      joinerName: string | null;
+      resultSeen: boolean;
+      userMove?: "ROCK" | "PAPER" | "SCISSORS";
+    };
+  };
 
   const { game, userId, creatorName, joinerName, resultSeen, userMove } =
     propsData.props;
