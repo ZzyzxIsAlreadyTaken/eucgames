@@ -7,16 +7,15 @@ import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { GameBoard } from "../_components/GameBoard";
 
-type PageProps = {
+export default async function GamePage({
+  params,
+}: {
   params: { gameId: string };
-  searchParams: Record<string, string | string[] | undefined>;
-};
-
-export default async function GamePage({ params }: PageProps) {
+}) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  // Await the params object before using it
+  // Use the gameId directly without awaiting params
   const gameId = params.gameId;
 
   const [game] = await db
