@@ -41,7 +41,8 @@ export async function joinGame(gameId: string) {
       })
       .where(eq(rpsGames.gameId, gameId));
 
-    revalidatePath("/spill/rps");
+    revalidatePath("/spill/mars");
+    revalidatePath(`/spill/mars/${gameId}`);
 
     return { success: true };
   } catch (error) {

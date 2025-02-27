@@ -113,12 +113,6 @@ export function GameListContent({
   const inProgressGames = games.filter((game) => game.status === "IN_PROGRESS");
   const completedGames = games.filter((game) => game.status === "COMPLETED");
 
-  // Add debugging information
-  console.log("All games:", games);
-  console.log("Waiting games:", waitingGames);
-  console.log("In progress games:", inProgressGames);
-  console.log("Completed games:", completedGames);
-
   // Helper function to render game rows
   const renderGameRow = (game: Game) => {
     const isCreator = game.creatorId === userId;
@@ -127,16 +121,6 @@ export function GameListContent({
     const resultSeen = game.resultSeen;
     const creatorName = getUserName(game.creatorId);
     const joinerName = getUserName(game.joinerId);
-
-    // Add debugging for each game
-    console.log(`Rendering game ${game.gameId}:`, {
-      status: game.status,
-      creatorId: game.creatorId,
-      joinerId: game.joinerId,
-      isCreator,
-      isJoiner,
-      isParticipant,
-    });
 
     // Determine result text for completed games
     let resultText = "";

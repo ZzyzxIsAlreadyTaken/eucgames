@@ -297,6 +297,27 @@ function WaitingForOpponentView({
   gameUrl,
   displayedUserMove,
 }: WaitingForOpponentViewProps) {
+  const router = useRouter();
+  const [copied, setCopied] = useState(false);
+
+  // Add polling to check for game updates in both scenarios
+  useEffect(() => {
+    // Poll regardless of whether we're waiting for a move or for someone to join
+    const interval = setInterval(() => {
+      // Refresh the page data to check for updates
+      router.refresh();
+    }, 3000); // Check every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [router]);
+
+  const copyToClipboard = () => {
+    void navigator.clipboard.writeText(gameUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   // If displayedUserMove is provided, show waiting for opponent's move view
   if (displayedUserMove) {
     const moveText =
@@ -326,10 +347,54 @@ function WaitingForOpponentView({
     <div className="text-center">
       <h2 className="mb-4 text-2xl font-bold">Venter på motstander</h2>
       <p className="mb-4 text-gray-400">Del dette spillet med en venn!</p>
-      <div className="mb-4 rounded-lg bg-white/5 p-4">
-        <code>{gameUrl}</code>
+      <div className="mb-4 flex items-center justify-between rounded-lg bg-white/5 p-4">
+        <code className="overflow-x-auto">{gameUrl}</code>
+        <button
+          onClick={copyToClipboard}
+          className="ml-2 rounded p-1 transition-colors hover:bg-white/10"
+          aria-label="Kopier lenke"
+        >
+          {copied ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-gray-400"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          )}
+        </button>
       </div>
-      <BackToGamesLink />
+      {copied ? (
+        <span className="text-gray-400">Kopiert til utklippstavle</span>
+      ) : (
+        <span className="invisible text-gray-400">
+          Kopiert til utklippstavle
+        </span>
+      )}
     </div>
   );
 }

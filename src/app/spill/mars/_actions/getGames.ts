@@ -2,7 +2,7 @@
 
 import { db } from "~/server/db";
 import { rpsGames, rpsMoves, rpsGameResults } from "~/server/db/schema";
-import { eq, and, or, not, inArray } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 export async function getGames() {
@@ -10,8 +10,6 @@ export async function getGames() {
   if (!userId) {
     return { success: false, error: "Not authenticated" };
   }
-
-  console.log("Current user ID:", userId);
 
   try {
     // First get all moves to check game states
@@ -22,22 +20,6 @@ export async function getGames() {
       .select()
       .from(rpsGameResults)
       .where(eq(rpsGameResults.userId, userId));
-
-    // Get ALL games first to debug
-    const allGamesInDb = await db.select().from(rpsGames);
-    console.log("ALL GAMES IN DB:", allGamesInDb);
-
-    // Check specifically for games where user is joiner
-    const gamesWhereUserIsJoiner = allGamesInDb.filter(
-      (game) => game.joinerId === userId,
-    );
-    console.log("Games where user is joiner:", gamesWhereUserIsJoiner);
-
-    // Check specifically for in-progress games
-    const inProgressGames = allGamesInDb.filter(
-      (game) => game.status === "IN_PROGRESS",
-    );
-    console.log("In-progress games:", inProgressGames);
 
     // Get all relevant games
     const games = await db
@@ -61,8 +43,6 @@ export async function getGames() {
       )
       .orderBy(rpsGames.createdAt);
 
-    console.log("Games after query:", games);
-
     // Filter and enhance games with move information
     const gamesWithMoveInfo = games.map((game) => {
       const gameMoves = allMoves.filter((m) => m.gameId === game.gameId);
@@ -77,10 +57,9 @@ export async function getGames() {
       };
     });
 
-    console.log("Final games with move info:", gamesWithMoveInfo);
     return { success: true, games: gamesWithMoveInfo };
   } catch (error) {
-    console.error("Failed to fetch games:", error);
+    console.error("Error fetching games:", error);
     return { success: false, error: "Failed to fetch games" };
   }
 }
