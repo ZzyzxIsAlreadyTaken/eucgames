@@ -395,6 +395,7 @@ function WaitingForOpponentView({
           Kopiert til utklippstavle
         </span>
       )}
+      <BackToGamesLink />
     </div>
   );
 }
