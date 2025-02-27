@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { isAdmin, isBetaTester } from "../../../lib/getEarlyAccess";
 
 export const metadata: Metadata = {
-  title: "EUC Games - Stein Saks Papir",
+  title: "EUC Games - Saks, Papir, Stein",
 };
 
 export default async function RPSPage() {
