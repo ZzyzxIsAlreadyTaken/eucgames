@@ -152,9 +152,13 @@ async function getGameProps(gameId: string) {
 }
 
 // Using a default export with correct params type
-export default async function Page({ params }: { params: { gameId: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ gameId: string }>;
+}) {
   // Extract the gameId directly from params
-  const { gameId } = params;
+  const { gameId } = await params;
 
   // Define the possible return types from getGameProps
   type PropsData =
