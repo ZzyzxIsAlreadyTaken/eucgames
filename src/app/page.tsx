@@ -12,7 +12,12 @@ export default function HomePage() {
       locked: false,
       game: "EUC Memory",
     },
-    { name: "Mars", href: "/spill/mars", locked: true },
+    {
+      name: "Mars",
+      href: "/spill/mars",
+      locked: false,
+      game: "EUC Saks, Papir, Stein",
+    },
     { name: "April", href: "/spill/april", locked: true },
     { name: "Mai", href: "/spill/mai", locked: true },
     { name: "Juni", href: "/spill/juni", locked: true },

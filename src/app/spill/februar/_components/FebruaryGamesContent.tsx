@@ -36,8 +36,10 @@ export default function FebruaryGamesContent({
     window.history.pushState({}, "", url);
   };
 
+  const isAfterFebruary2025 = new Date() > new Date("2025-02-28");
+
   const gameName = () => {
-    if (!isFebruary2025) {
+    if (!isFebruary2025 && !isAfterFebruary2025) {
       return "?";
     } else {
       return "Memory";
@@ -52,14 +54,14 @@ export default function FebruaryGamesContent({
       <h2 className="text-2xl font-semibold">
         EUC <span className="text-[#CC65FF]">{gameName()}</span>
       </h2>
+      <Link
+        href={`/spill/februar/highscores?difficulty=${difficulty}`}
+        className="rounded-lg bg-white/10 px-6 py-3 text-xl text-white transition hover:bg-white/20"
+      >
+        Topp 10
+      </Link>
       {earlyAccess || isFebruary2025 ? (
         <>
-          <Link
-            href={`/spill/februar/highscores?difficulty=${difficulty}`}
-            className="rounded-lg bg-white/10 px-6 py-3 text-xl text-white transition hover:bg-white/20"
-          >
-            Topp 10
-          </Link>
           <ToLike
             difficulty={difficulty}
             onDifficultyChange={handleDifficultyChange}
