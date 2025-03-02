@@ -7,6 +7,7 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { isAdmin, isBetaTester } from "../../../lib/getEarlyAccess";
+import { HowToPlayModal } from "./_components/HowToPlayModal";
 
 export const metadata: Metadata = {
   title: "EUC Games - Saks, Papir, Stein",
@@ -35,7 +36,10 @@ export default async function RPSPage() {
               Mars
             </h1>
             <h2 className="text-2xl font-semibold">
-              EUC <span className="text-[#CC65FF]">Saks, Papir, Stein</span>
+              EUC{" "}
+              <span className="inline-flex items-center text-[#CC65FF]">
+                Saks, Papir, Stein <HowToPlayModal />
+              </span>
             </h2>
 
             <div className="mx-auto max-w-2xl space-y-8">
