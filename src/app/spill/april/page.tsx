@@ -44,7 +44,7 @@ export default async function AprilGames() {
           </div>
         )}
 
-        {isApril2025 && !earlyAccess && (
+        {!isApril2025 && !earlyAccess && (
           <div className="rounded-lg border-2 border-yellow-300 bg-yellow-100/50 p-6 text-center">
             <p className="text-xl text-yellow-800">
               Du trenger early access for å spille April-spillet.
