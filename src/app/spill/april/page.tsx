@@ -27,7 +27,7 @@ export default async function AprilGames() {
           April Games
         </h1>
 
-        {isApril2025 && earlyAccess && (
+        {isApril2025 && (
           <div className="mb-8">
             <h2 className="mb-4 text-center text-2xl font-bold text-yellow-700">
               EUC Påske Quiz
@@ -44,7 +44,7 @@ export default async function AprilGames() {
           </div>
         )}
 
-        {!isApril2025 && !earlyAccess && (
+        {isApril2025 && !earlyAccess && (
           <div className="rounded-lg border-2 border-yellow-300 bg-yellow-100/50 p-6 text-center">
             <p className="text-xl text-yellow-800">
               Du trenger early access for å spille April-spillet.
