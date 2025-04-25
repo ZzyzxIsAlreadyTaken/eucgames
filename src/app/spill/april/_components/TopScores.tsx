@@ -35,7 +35,7 @@ export function TopScores() {
   if (loading) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center justify-center rounded-lg border-2 border-yellow-300 bg-gradient-to-b from-yellow-100 to-yellow-200 p-6 shadow-lg">
-        <p className="text-yellow-800">Laster toppscorer...</p>
+        <p className="text-yellow-800">Laster Highscores...</p>
       </div>
     );
   }
@@ -43,7 +43,7 @@ export function TopScores() {
   if (topScores.length === 0) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center justify-center rounded-lg border-2 border-yellow-300 bg-gradient-to-b from-yellow-100 to-yellow-200 p-6 shadow-lg">
-        <h2 className="mb-4 text-2xl font-bold text-yellow-800">Toppscorer</h2>
+        <h2 className="mb-4 text-2xl font-bold text-yellow-800">Highscores</h2>
         <p className="text-yellow-700">Ingen poeng ennå. Vær den første!</p>
       </div>
     );
@@ -51,7 +51,7 @@ export function TopScores() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center justify-center rounded-lg border-2 border-yellow-300 bg-gradient-to-b from-yellow-100 to-yellow-200 p-6 shadow-lg">
-      <h2 className="mb-4 text-2xl font-bold text-yellow-800">Toppscorer</h2>
+      <h2 className="mb-4 text-2xl font-bold text-yellow-800">Highscores</h2>
       <div className="w-full space-y-2">
         {topScores.map((score, index) => (
           <div

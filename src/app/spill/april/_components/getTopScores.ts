@@ -2,7 +2,7 @@
 
 import { db } from "~/server/db";
 import { scores } from "~/server/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, asc } from "drizzle-orm";
 import { clerkClient } from "~/lib/clerkClient";
 
 interface TopScore {
@@ -27,7 +27,7 @@ export async function getTopScores(): Promise<TopScore[]> {
       })
       .from(scores)
       .where(eq(scores.game, "paaske_quiz"))
-      .orderBy(desc(scores.score));
+      .orderBy(asc(scores.id));
 
     // Get the first score for each user
     const userFirstScores = new Map<string, TopScore>();
