@@ -197,6 +197,18 @@ export function PaaskeQuiz({ testMode = false }: { testMode?: boolean }) {
     return () => clearInterval(timer);
   }, [currentQuestion, gameOver, isLoaded, user, gameStarted]);
 
+  // Save score when game is over
+  useEffect(() => {
+    if (gameOver && user) {
+      const username = user.firstName
+        ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
+        : (user.username ?? "Anonymous");
+      void saveQuizScore(user.id, username, score).catch((error) => {
+        console.error("Failed to save quiz score:", error);
+      });
+    }
+  }, [gameOver, user, score]);
+
   const handleTimeUp = () => {
     setShowResult(true);
     setTimeout(() => {
@@ -207,14 +219,6 @@ export function PaaskeQuiz({ testMode = false }: { testMode?: boolean }) {
         setTimeLeft(10);
       } else {
         setGameOver(true);
-        if (user) {
-          const username = user.firstName
-            ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
-            : (user.username ?? "Anonymous");
-          void saveQuizScore(user.id, username, score).catch((error) => {
-            console.error("Failed to save quiz score:", error);
-          });
-        }
       }
     }, 2000);
   };
@@ -230,7 +234,7 @@ export function PaaskeQuiz({ testMode = false }: { testMode?: boolean }) {
       currentQuestionData &&
       answerIndex === currentQuestionData.correctAnswer
     ) {
-      setScore(score + 1);
+      setScore((prevScore) => prevScore + 1);
     }
 
     setTimeout(() => {
@@ -241,14 +245,6 @@ export function PaaskeQuiz({ testMode = false }: { testMode?: boolean }) {
         setTimeLeft(10);
       } else {
         setGameOver(true);
-        if (user) {
-          const username = user.firstName
-            ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
-            : (user.username ?? "Anonymous");
-          void saveQuizScore(user.id, username, score).catch((error) => {
-            console.error("Failed to save quiz score:", error);
-          });
-        }
       }
     }, 2000);
   };

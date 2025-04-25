@@ -32,7 +32,7 @@ export default async function AprilGames() {
             <h2 className="mb-4 text-center text-2xl font-bold text-yellow-700">
               EUC Påske Quiz
             </h2>
-            <PaaskeQuiz testMode={false} />
+            <PaaskeQuiz testMode={true} />
           </div>
         )}
 
